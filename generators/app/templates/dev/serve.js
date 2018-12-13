@@ -5,7 +5,7 @@ var port = 3456;
 var app = express();
 
 app.use(serveStatic('./', {
-  'index': ['demo.html']
+  'index': ['examples/index.html']
 }));
 app.listen(port);
 

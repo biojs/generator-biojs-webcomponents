@@ -13,7 +13,7 @@ import styles from './style.css';
  **/
 function styleTemplate() {
   var myStyle = document.createElement("style");
-  myStyle.setAttribute("id", "cytoscapeInterMineStyle");
+  myStyle.setAttribute("id", "<%= toolNameComputer =>Style");
   myStyle.setAttribute("type", "text/css");
   myStyle.innerHTML = styles.toString();
   return myStyle;
@@ -25,7 +25,7 @@ function styleTemplate() {
  * Useful in cases where this component might be initialised more than once.
  **/
 function addStylesIfNeeded() {
-  if (!document.getElementById("cytoscapeInterMineStyle")) {
+  if (!document.getElementById("<%= toolNameComputer =>Style")) {
     document.head.appendChild(styleTemplate());
   }
 }
@@ -78,10 +78,10 @@ function initComponent(options) {
  * or where we might initialise a component written from scratch. Needs to be
  * paired with a `define` method call - see end of the page.
  **/
-export const BiojsComponentInteractionGraph = {
-  cymine: connectCymine(),
+export const BiojsComponent<%= toolNameComputer => = {
+  init: initComponent(),
 };
 
 // this line connects the html element in idex.html with the javascript
 // defined above.
-define('biojs-component-interaction-graph', BiojsComponentInteractionGraph);
+define('toolNameComputer', BiojsComponent<%= toolNameComputer =>);
