@@ -1,0 +1,28 @@
+{
+  "name": "<%=toolNameComputer%>",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "description": "",
+  "homepage": "http://www.intermine.org",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "./node_modules/.bin/webpack",
+    "server" : "node dev/serve.js",
+    "dev": "./node_modules/.bin/webpack --watch",
+    "less": "lessc src/style.less dist/style.css --clean-css"
+  },
+  "keywords": [
+    "biojs", "biojs-webcomponent"
+  ],
+  "author": "<%= author %>",
+  "license": "<%= licence %>",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "express": "^4.16.3",
+    "less": "^3.8.1",
+    "less-plugin-clean-css": "^1.5.1",
+    "webpack": "^4.16.5",
+    "webpack-cli": "^3.1.0"
+  }
+}

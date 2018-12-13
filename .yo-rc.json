@@ -1,0 +1,9 @@
+{
+  "generator-node": {
+    "promptValues": {
+      "authorName": "Yo Yehudi",
+      "authorEmail": "yochannah@gmail.com",
+      "authorUrl": "http://www.yo-yehudi.com"
+    }
+  }
+}
