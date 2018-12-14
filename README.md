@@ -1,5 +1,7 @@
 # generator-biojs-webcomponents [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
-Generates the scaffold for a BioJS component automatically so you don't have to do it yourself. This is also specifically designed with re-packaging existing components in mind, so you can upgrade to BioJS 3 component style without having to re-write your component.
+Generates the scaffold for a BioJS component automatically so you don't have to do it yourself. 
+
+This is also specifically designed with re-packaging existing components in mind, so you can upgrade to BioJS 3 component style without having to re-write your component.
 
 
 
