@@ -20,16 +20,19 @@ module.exports = class extends Generator {
       )
     );
 
-    const prompts = [{
+    const prompts = [
+      {
         type: "input",
         name: "toolNameComputer",
-        message: "Computer package name? This is a computer name with no capital letters or special characters apart from the - dash.",
+        message:
+          "Computer package name? This is a computer name with no capital letters or special characters apart from the - dash.",
         default: "biojs-webcomponent-tool-name-here"
       },
       {
         type: "input",
         name: "toolNameHuman",
-        message: 'Thanks! Now, give me a human name for the project - e.g. "Genome Browser"',
+        message:
+          'Thanks! Now, give me a human name for the project - e.g. "Genome Browser"',
         default: "BioJS component"
       }
     ];
@@ -43,28 +46,32 @@ module.exports = class extends Generator {
   writing() {
     this.fs.copyTpl(
       this.templatePath("examples/index.html"),
-      this.destinationPath("examples/index.html"), {
+      this.destinationPath("examples/index.html"),
+      {
         title: this.props.toolNameHuman,
         toolNameComputer: this.props.toolNameComputer
       }
     );
     this.fs.copyTpl(
       this.templatePath("index.html"),
-      this.destinationPath("index.html"), {
+      this.destinationPath("index.html"),
+      {
         title: this.props.toolNameHuman,
         toolNameComputer: this.props.toolNameComputer
       }
     );
     this.fs.copyTpl(
       this.templatePath("webpack.config.js"),
-      this.destinationPath("webpack.config.js"), {
+      this.destinationPath("webpack.config.js"),
+      {
         toolNameCamel: this.props.toolNameCamel
       }
     );
 
     this.fs.copyTpl(
       this.templatePath("package.json"),
-      this.destinationPath("package.json"), {
+      this.destinationPath("package.json"),
+      {
         author: this.props.author,
         homepage: this.props.homepage,
         toolNameHuman: this.props.toolNameHuman,
@@ -75,7 +82,8 @@ module.exports = class extends Generator {
 
     this.fs.copyTpl(
       this.templatePath("README.md"),
-      this.destinationPath("README.md"), {
+      this.destinationPath("README.md"),
+      {
         author: this.props.author,
         toolNameHuman: this.props.toolNameHuman,
         toolNameComputer: this.props.toolNameComputer,
@@ -85,14 +93,16 @@ module.exports = class extends Generator {
 
     this.fs.copyTpl(
       this.templatePath("src/style.less"),
-      this.destinationPath("src/style.less"), {
+      this.destinationPath("src/style.less"),
+      {
         toolNameCamel: this.props.toolNameCamel
       }
     );
 
     this.fs.copyTpl(
       this.templatePath("src/index.js"),
-      this.destinationPath("src/index.js"), {
+      this.destinationPath("src/index.js"),
+      {
         toolNameComputer: this.props.toolNameComputer,
         toolNameCamel: this.props.toolNameCamel
       }
@@ -100,16 +110,18 @@ module.exports = class extends Generator {
 
     this.fs.copyTpl(
       this.templatePath("dev/serve.js"),
-      this.destinationPath("dev/serve.js"));
+      this.destinationPath("dev/serve.js")
+    );
 
     this.fs.copyTpl(
       this.templatePath("_gitignore"),
-      this.destinationPath(".gitignore"));
+      this.destinationPath(".gitignore")
+    );
 
     this.fs.copyTpl(
       this.templatePath("img/favicon.png"),
-      this.destinationPath("img/favicon.png"));
-
+      this.destinationPath("img/favicon.png")
+    );
   }
 
   install() {
@@ -121,16 +133,19 @@ module.exports = class extends Generator {
   }
 };
 
-
 /**
  * Converts human friendly strings to camelcased space-free strings
+ * @param {string} aString a prop taken in by yeoman's wizard
+ * @return {aString}, but with spaces removed and camelCased.
  **/
 function toCamelCase(aString) {
-  var tokens = aString.split(" "),
-    camelString = "";
+  var tokens = aString.split(" ");
+
+  var camelString = "";
   tokens.map(function(token) {
     camelString += token[0].toUpperCase();
-    camelString += token.substring(1, token.length)
+    camelString += token.substring(1, token.length);
+    return true;
   });
   return camelString;
 }
