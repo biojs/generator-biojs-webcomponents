@@ -2,7 +2,7 @@ import 'hybrids/shim';
 import {
   define
 } from 'hybrids';
-import styles from './style.css';
+import styles from '../dist/style.css';
 /* Add any additional library imports you may need here. */
 
 
@@ -13,7 +13,7 @@ import styles from './style.css';
  **/
 function styleTemplate() {
   var myStyle = document.createElement("style");
-  myStyle.setAttribute("id", "<%= toolNameComputer =>Style");
+  myStyle.setAttribute("id", "<%= toolNameCamel %>Style");
   myStyle.setAttribute("type", "text/css");
   myStyle.innerHTML = styles.toString();
   return myStyle;
@@ -25,7 +25,7 @@ function styleTemplate() {
  * Useful in cases where this component might be initialised more than once.
  **/
 function addStylesIfNeeded() {
-  if (!document.getElementById("<%= toolNameComputer =>Style")) {
+  if (!document.getElementById("<%= toolNameCamel %>Style")) {
     document.head.appendChild(styleTemplate());
   }
 }
@@ -53,18 +53,22 @@ function initComponent(options) {
       /**                                                      **/
       /** See also this example component for guidance:        **/
       /* https://github.com/yochannah/biojs-webcomponent-prototype
-      /**                                                      **/
-      /** If you need to pass in a parameter - e.g. perhaps    **/
-      /** you have a gene visualisation so you want a gene id  **/
-      /** as a parameter, set the parameter as an attribute,   **/
-      /** and then get the attribute from host, like this:     **/
-      var myGeneId = host.getAttribute("geneId");
-      /** The line above would return BRCA1. Delete if needed. **/
+      /** or admire the minimal demo below                     **/
       /**                                                      **/
       /**********************************************************/
       /****** WRITE CODE TO INITIALISE YOUR COMPONENT HERE ******/
       /**********************************************************/
 
+      /** If you need to pass in a parameter - e.g. perhaps    **/
+      /** you have a gene visualisation so you want a gene id  **/
+      /** as a parameter, set the parameter as an attribute,   **/
+      /** and then get the attribute from host, like this:     **/
+      var myGeneId = host.getAttribute("geneId");
+      /** The line above would return BRCA1 if you've left the **/
+      /** default settings. Delete if needed. **/
+
+      host.innerHTML = "<div>A placeholder for a pretty" +
+        " visualisation for " + myGeneId + ".</div>";
 
 
       //leave this line here. Deleting it will result in your css going AWOL.
@@ -78,10 +82,10 @@ function initComponent(options) {
  * or where we might initialise a component written from scratch. Needs to be
  * paired with a `define` method call - see end of the page.
  **/
-export const BiojsComponent<%= toolNameComputer => = {
-  init: initComponent(),
+export const BiojsComponent<%= toolNameCamel %> = {
+  init: initComponent()
 };
 
 // this line connects the html element in idex.html with the javascript
 // defined above.
-define('toolNameComputer', BiojsComponent<%= toolNameComputer =>);
+define('<%=toolNameComputer%>', BiojsComponent<%= toolNameCamel %>);

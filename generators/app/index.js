@@ -20,61 +20,54 @@ module.exports = class extends Generator {
       )
     );
 
-    const prompts = [
-      {
+    const prompts = [{
         type: "input",
         name: "toolNameComputer",
-        message:
-          "Computer package name? This is a computer name with no capital letters or special characters apart from the - dash.",
+        message: "Computer package name? This is a computer name with no capital letters or special characters apart from the - dash.",
         default: "biojs-webcomponent-tool-name-here"
       },
       {
         type: "input",
         name: "toolNameHuman",
-        message:
-          'Thanks! Now, give me a human name for the project - e.g. "Genome Browser"',
+        message: 'Thanks! Now, give me a human name for the project - e.g. "Genome Browser"',
         default: "BioJS component"
       }
     ];
     return this.prompt(prompts).then(props => {
       // To access props later use this.props.someAnswer;
       this.props = props;
+      this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
     });
   }
 
   writing() {
     this.fs.copyTpl(
       this.templatePath("examples/index.html"),
-      this.destinationPath("examples/index.html"),
-      {
+      this.destinationPath("examples/index.html"), {
+        title: this.props.toolNameHuman,
+        toolNameComputer: this.props.toolNameComputer
+      }
+    );
+    this.fs.copyTpl(
+      this.templatePath("index.html"),
+      this.destinationPath("index.html"), {
         title: this.props.toolNameHuman,
         toolNameComputer: this.props.toolNameComputer
       }
     );
     this.fs.copyTpl(
       this.templatePath("webpack.config.js"),
-      this.destinationPath("webpack.config.js"),
-      {
-        toolNameComputer: this.props.toolNameComputer
-      }
-    );
-
-    this.fs.copyTpl(
-      this.templatePath("config.json"),
-      this.destinationPath("config.json"),
-      {
-        accepts: JSON.stringify(this.props.accepts),
-        toolNameHuman: this.props.toolNameHuman,
-        toolNameComputer: this.props.toolNameComputer,
-        classes: stringToMultiValue(this.props.classes)
+      this.destinationPath("webpack.config.js"), {
+        toolNameCamel: this.props.toolNameCamel
       }
     );
 
     this.fs.copyTpl(
       this.templatePath("package.json"),
-      this.destinationPath("package.json"),
-      {
+      this.destinationPath("package.json"), {
         author: this.props.author,
+        homepage: this.props.homepage,
+        toolNameHuman: this.props.toolNameHuman,
         toolNameComputer: this.props.toolNameComputer,
         licence: this.props.licence
       }
@@ -82,8 +75,7 @@ module.exports = class extends Generator {
 
     this.fs.copyTpl(
       this.templatePath("README.md"),
-      this.destinationPath("README.md"),
-      {
+      this.destinationPath("README.md"), {
         author: this.props.author,
         toolNameHuman: this.props.toolNameHuman,
         toolNameComputer: this.props.toolNameComputer,
@@ -93,17 +85,31 @@ module.exports = class extends Generator {
 
     this.fs.copyTpl(
       this.templatePath("src/style.less"),
-      this.destinationPath("src/style.less"),
-      {
-        toolNameComputer: this.props.toolNameComputer
+      this.destinationPath("src/style.less"), {
+        toolNameCamel: this.props.toolNameCamel
       }
     );
 
     this.fs.copyTpl(
       this.templatePath("src/index.js"),
-      this.destinationPath("src/index.js"),
-      {}
+      this.destinationPath("src/index.js"), {
+        toolNameComputer: this.props.toolNameComputer,
+        toolNameCamel: this.props.toolNameCamel
+      }
     );
+
+    this.fs.copyTpl(
+      this.templatePath("dev/serve.js"),
+      this.destinationPath("dev/serve.js"));
+
+    this.fs.copyTpl(
+      this.templatePath(".gitignore"),
+      this.destinationPath(".gitignore"));
+
+    this.fs.copyTpl(
+      this.templatePath("img/favicon.png"),
+      this.destinationPath("img/favicon.png"));
+
   }
 
   install() {
@@ -115,10 +121,17 @@ module.exports = class extends Generator {
   }
 };
 
-function stringToMultiValue(values) {
-  // Split and trim values. Return pseudo-aray.
-  var vals = values.split(",");
-  // No more whitespace, please
-  vals = vals.map(val => val.replace(/\s+/g, ""));
-  return JSON.stringify(vals);
+
+/**
+ * Converts human friendly strings to camelcased space-free strings
+ **/
+function toCamelCase(aString) {
+  var tokens = aString.split(" "),
+    camelString = "";
+  tokens.map(function(token) {
+    console.log(aString, token);
+    camelString += token[0].toUpperCase();
+    camelString += token.substring(1, token.length)
+  });
+  return camelString;
 }
