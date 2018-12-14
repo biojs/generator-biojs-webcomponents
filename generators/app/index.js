@@ -129,7 +129,6 @@ function toCamelCase(aString) {
   var tokens = aString.split(" "),
     camelString = "";
   tokens.map(function(token) {
-    console.log(aString, token);
     camelString += token[0].toUpperCase();
     camelString += token.substring(1, token.length)
   });

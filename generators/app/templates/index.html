@@ -6,10 +6,21 @@
   <title><%= title %> demo index</title>
   <link rel="icon" href="img/favicon.png">
   <link rel="stylesheet" type="text/css" href="dist/style.css">
-
+  <style>
+  /* here's some basic styling for the demo pages. It's included embedded in the
+  page HTML so that it doesn't accidentally end up inside your component ;) */
+  body.demo {
+    font-family: roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+  </style>
 </head>
 
-<body>
+<body class="demo">
 
   <h1><%= title %> demo pages</h1>
 

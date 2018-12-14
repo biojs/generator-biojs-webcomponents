@@ -7,9 +7,21 @@
   <link rel="icon" href="../img/favicon.png">
   <!-- the library for the webcomponent -->
   <script src="../dist/bundle.js" type="module"></script>
+  <style>
+  /* here's some basic styling for the demo pages. It's included embedded in the
+  page HTML so that it doesn't accidentally end up inside your component ;) */
+  body.demo {
+    font-family: roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+  </style>
 </head>
 
-<body>
+<body class="demo">
 
   <h1><%= title %> demo</h1>
 
