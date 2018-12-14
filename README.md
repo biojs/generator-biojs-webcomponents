@@ -1,13 +1,17 @@
 # generator-biojs-webcomponents [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
-> Generate the scaffold for a BioJS component automatically so you don&#39;t hav to do it yourself
+Generates the scaffold for a BioJS component automatically so you don't have to do it yourself. This is also specifically designed with re-packaging existing components in mind, so you can upgrade to BioJS 3 component style without having to re-write your component.
 
-## Installation
 
-First, install [Yeoman](http://yeoman.io) and generator-biojs-webcomponents using [npm](https://www.npmjs.com/) (we assume you have pre-installed [node.js](https://nodejs.org/)).
+
+## Getting started.
+
+First, install [Yeoman](http://yeoman.io) and generator-biojs-webcomponents using [npm](https://www.npmjs.com/) (we assume you have pre-installed [node.js](https://nodejs.org/)) - if you need to manage multiple versions of node also consider [nvm](https://github.com/creationix/nvm).
+
+Once node is installed, run this in your terminal.
 
 ```bash
-npm install -g yo
-npm install -g generator-biojs-webcomponents
+mkdir my-new-component #you can change my-new-component to the folder name of your choice. 
+npm install -g yo @biojs/generator-biojs-webcomponents
 ```
 
 Then generate your new project:
@@ -16,9 +20,10 @@ Then generate your new project:
 yo @biojs/biojs-webcomponents
 ```
 
-## Getting To Know Yeoman
+This will walk you through the process of setting up your component and generate boilerplate files for you. 
+Once it's complete, look at your new README file for build instructions, and check out `src/index.js`
+and `examples/index.html` to get started - there are instructions in the code. 
 
- * Feel free to [learn more about Yeoman](http://yeoman.io/).
 
 ## License
 
