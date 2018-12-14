@@ -9,8 +9,11 @@ First, install [Yeoman](http://yeoman.io) and generator-biojs-webcomponents usin
 
 Once node is installed, run this in your terminal.
 
+Note that below you can change my-new-component to the folder name of your choice. 
+
 ```bash
-mkdir my-new-component #you can change my-new-component to the folder name of your choice. 
+mkdir my-new-component 
+cd my-new-component
 npm install -g yo @biojs/generator-biojs-webcomponents
 ```
 
