@@ -33,8 +33,8 @@ and `examples/index.html` to get started - there are instructions in the code.
 MIT © [Yo Yehudi](http://www.yo-yehudi.com)
 
 
-[npm-image]: https://badge.fury.io/js/generator-biojs-webcomponents.svg
-[npm-url]: https://npmjs.org/package/generator-biojs-webcomponents
+[npm-image]: https://badge.fury.io/js/@biojs/generator-biojs-webcomponents.svg
+[npm-url]: https://npmjs.org/package/@biojs/generator-biojs-webcomponents
 [travis-image]: https://travis-ci.org/biojs/generator-biojs-webcomponents.svg?branch=master
 [travis-url]: https://travis-ci.org/biojs/generator-biojs-webcomponents
 [daviddm-image]: https://david-dm.org/biojs/generator-biojs-webcomponents.svg?theme=shields.io
