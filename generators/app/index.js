@@ -119,6 +119,11 @@ module.exports = class extends Generator {
     );
 
     this.fs.copyTpl(
+      this.templatePath("TODO.md"),
+      this.destinationPath("TODO.md")
+    );
+
+    this.fs.copyTpl(
       this.templatePath("img/favicon.png"),
       this.destinationPath("img/favicon.png")
     );
