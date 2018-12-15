@@ -1,9 +1,16 @@
 # generator-biojs-webcomponents [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
 Generates the scaffold for a BioJS component automatically so you don't have to do it yourself. 
 
-This is also specifically designed with re-packaging existing components in mind, so you can upgrade to BioJS 3 component style without having to re-write your component.
+### What this tool currently does
 
+This tool specifically designed with re-packaging existing components in mind, so you can upgrade to BioJS 3 component style without having to re-write your component.
 
+### To-do / roadmap. 
+
+See [issues](issues) for more details - we still need the following: 
+
+1. Scaffolder for _new_ browser tools (i.e. not just a wrapper for older tools)
+2. Scaffolder for command line tools. 
 
 ## Getting started.
 
