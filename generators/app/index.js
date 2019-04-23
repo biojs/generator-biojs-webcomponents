@@ -147,8 +147,12 @@ function toCamelCase(aString) {
   var tokens = aString.split(" ");
 
   var camelString = "";
-  tokens.map(function(token) {
-    camelString += token[0].toUpperCase();
+  tokens.map(function(token, index) {
+    if (index) {
+      camelString += token[0]; // Keep the first letter of the first word as it is
+    } else {
+      camelString += token[0].toUpperCase(); // Capitalize the first letter of other words
+    }
     camelString += token.substring(1, token.length);
     return true;
   });
