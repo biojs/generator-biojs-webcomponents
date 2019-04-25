@@ -82,10 +82,10 @@ function initComponent(options) {
  * or where we might initialise a component written from scratch. Needs to be
  * paired with a `define` method call - see end of the page.
  **/
-export const BiojsComponent<%= toolNameCamel %> = {
+export const <%= toolNameCamel %> = {
   init: initComponent()
 };
 
 // this line connects the html element in idex.html with the javascript
 // defined above.
-define('<%=toolNameComputer%>', BiojsComponent<%= toolNameCamel %>);
+define('<%=toolNameComputer%>', <%= toolNameCamel %>);
