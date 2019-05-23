@@ -1,5 +1,5 @@
 {
-  "name": "@biojs/generator-biojs-webcomponents",
+  "name": "generator-biojs-webcomponents",
   "version": "1.0.1",
   "description": "Generate the scaffold for a BioJS component automatically so you don't have to do it yourself",
   "homepage": "http://biojs.net",
