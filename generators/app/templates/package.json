@@ -20,17 +20,17 @@
   "dependencies": {
   },
   "devDependencies": {
-    "express": "^4.16.3",
-    "less": "^3.8.1",
+    "express": "^4.17.1",
+    "less": "^3.9.0",
     "less-plugin-clean-css": "^1.5.1",
-    "webpack": "^4.16.5",
-    "webpack-cli": "^3.1.0",
-    "@babel/core": "^7.2.0",
-    "@babel/preset-env": "^7.2.0",
-    "babel-loader": "^8.0.4",
-    "css-loader": "^2.0.0",
-    "hybrids": "^1.5.0",
-    "raw-loader": "^0.5.1"
+    "webpack": "^4.32.2",
+    "webpack-cli": "^3.3.2",
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "babel-loader": "^8.0.6",
+    "css-loader": "^2.1.1",
+    "hybrids": "^3.0.2",
+    "raw-loader": "^2.0.0"
   },
   "sniper": {
     "buildJS": [
