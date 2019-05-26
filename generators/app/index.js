@@ -153,6 +153,7 @@ function toCamelCase(aString) {
     } else {
       camelString += token[0].toUpperCase(); // Capitalize the first letter of other words
     }
+
     camelString += token.substring(1, token.length);
     return true;
   });
