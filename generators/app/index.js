@@ -149,9 +149,9 @@ function toCamelCase(aString) {
   var camelString = "";
   tokens.map(function(token, index) {
     if (index) {
-      camelString += token[0]; // Keep the first letter of the first word as it is
-    } else {
       camelString += token[0].toUpperCase(); // Capitalize the first letter of other words
+    } else {
+      camelString += token[0]; // Keep the first letter of the first word as it is
     }
 
     camelString += token.substring(1, token.length);
