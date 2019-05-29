@@ -86,6 +86,5 @@ export const <%= toolNameCamel %> = {
   init: initComponent()
 };
 
-// this line connects the html element in idex.html with the javascript
-// defined above.
+// this line connects the html element in index.html with the javascript defined above.
 define('<%=toolNameComputer%>', <%= toolNameCamel %>);
