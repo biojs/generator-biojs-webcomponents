@@ -32,7 +32,7 @@ module.exports = class extends Generator {
         type: "input",
         name: "toolNameHuman",
         message:
-          'Thanks! Now, give me a human name for the project with only letters and NO special characters. e.g. "Genome Browser"',
+          "Thanks! Now, give me a human name for the project with only letters and NO special characters. e.g. \"Genome Browser\"",
         default: "BioJS component"
       }
     ];
