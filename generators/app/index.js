@@ -3,6 +3,7 @@ const Generator = require("yeoman-generator");
 const chalk = require("chalk");
 const yosay = require("yosay");
 const { exec } = require("child_process");
+const ora = require("ora");
 
 module.exports = class extends Generator {
   initializing() {
@@ -59,7 +60,7 @@ module.exports = class extends Generator {
         validate: async function(props) {
           if (props) {
             let command = "npm view " + props;
-            let res = await executeCommand(command, "npm");
+            let res = await executeCommand(command, "packageName");
             return res;
             /**
              * Returns true if command is succesfully executed and hence yeoman proceeds to the next prompt
@@ -103,6 +104,11 @@ module.exports = class extends Generator {
           }
 
           return false; // Don't show this prompt if user says that package description is incorrect
+        },
+        validate: async function(props, answers) {
+          let command = "npm view " + answers.packageName + "@" + props;
+          var res = await executeCommand(command, "version");
+          return res;
         }
       },
       {
@@ -130,7 +136,7 @@ module.exports = class extends Generator {
         validate: async function(props) {
           var res = await executeCommand(
             "mkdir dist && cd dist && curl -O " + props,
-            "npm"
+            "downloadURL"
           ); // Import the build file in dist directory from npm
           return res;
           /**
@@ -381,21 +387,33 @@ function toCamelCase(aString) {
  * @returns {Promise}, resolves and returns true if execution is successful, rejects and returns error otherwise.
  */
 function executeCommand(command, type) {
+  const spinner = ora({
+    text: "Loading..",
+    spinner: "weather"
+  });
+  spinner.start();
   return new Promise((resolve, reject) => {
     exec(command, (err, stdout) => {
       if (err) {
-        // Node couldn't execute the command
-        if (type === "npm") {
-          // If the command is related to npm
-          console.log(`\n\n${err}`);
-          reject(err);
+        // The command couldn't be executed
+        spinner.stop();
+        reject(err);
+      } else if (type === "version") {
+        // Command successfully executed
+        if (stdout) {
+          spinner.stop();
+          resolve(true);
         } else {
-          executeCommand("rm -rf dist", "local"); // Delete the dist directory if importing file locally fails
+          spinner.stop();
+          let err = "Sorry, that version does not exist!";
           reject(err);
         }
+      } else if (stdout) {
+        process.stdout.write(`\n ${stdout} \n`); // If there is an output display it
+        spinner.stop();
+        resolve(true);
       } else {
-        // Command successfully executed
-        if (stdout) console.log(`\n ${stdout} \n`); // If there is an output display it, prints unnecessary empty line otherwise
+        spinner.stop();
         resolve(true);
       }
     });
