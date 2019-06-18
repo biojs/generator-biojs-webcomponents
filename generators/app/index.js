@@ -60,7 +60,24 @@ module.exports = class extends Generator {
         validate: async function(props) {
           if (props) {
             let command = "npm view " + props;
-            let res = await executeCommand(command, "packageName");
+            let res = await executeCommand(command, "packageName")
+              .then(() => {
+                return true;
+              })
+              .catch(err => {
+                if (err.code === 1) {
+                  return chalk.red(
+                    "There's no package on npm with the name " +
+                      chalk.red.bold(props) +
+                      ". Please note that the package name is case sensitive."
+                  );
+                }
+
+                return chalk.red(
+                  "Oops! We encountered an error, please see the log below for more details.\n" +
+                    err
+                );
+              });
             return res;
             /**
              * Returns true if command is succesfully executed and hence yeoman proceeds to the next prompt
@@ -68,7 +85,7 @@ module.exports = class extends Generator {
              */
           }
 
-          return "This is a mandatory field, please answer."; // Warn user if no input is entered
+          return chalk.red("This is a mandatory field, please answer."); // Warn user if no input is entered
         }
       },
       {
@@ -106,9 +123,29 @@ module.exports = class extends Generator {
           return false; // Don't show this prompt if user says that package description is incorrect
         },
         validate: async function(props, answers) {
-          let command = "npm view " + answers.packageName + "@" + props;
-          var res = await executeCommand(command, "version");
-          return res;
+          if (props) {
+            let command = "npm view " + answers.packageName + "@" + props;
+            var res = await executeCommand(command, "version")
+              .then(() => {
+                return true;
+              })
+              .catch(() =>
+                chalk.red(
+                  "Sorry, the version - " +
+                    chalk.red.bold(props) +
+                    " doesn't exist. Please enter again. Enter " +
+                    chalk.cyan("latest") +
+                    " if you want to import the latest version."
+                )
+              );
+            return res;
+          }
+
+          return chalk.red(
+            "This is a mandatory field, please answer. Enter " +
+              chalk.cyan("latest") +
+              " if you want to import the latest version."
+          ); // Warn user if no input is entered
         }
       },
       {
@@ -134,15 +171,101 @@ module.exports = class extends Generator {
           return false; // Don't show this prompt if user says that package description is incorrect
         },
         validate: async function(props) {
-          var res = await executeCommand(
-            "mkdir dist && cd dist && curl -O " + props,
-            "downloadURL"
-          ); // Import the build file in dist directory from npm
-          return res;
-          /**
-           * Returns true if command execution is successful and proceeds to commonPrompts
-           * returns and logs the error if execution fails
-           */
+          if (props) {
+            if (props === "skip") {
+              return true;
+            }
+
+            var res = await executeCommand(
+              "mkdir component-dist && cd component-dist && curl -O " + props,
+              "downloadURL"
+            )
+              .then(() => {
+                return true;
+              })
+              .catch(async err => {
+                if (err.code === 1) {
+                  return chalk.red(
+                    `Sorry, there already seems to be a directory with the same name ${chalk.cyan(
+                      "(component-dist)"
+                    )}, please change it's name or move it.\n   If you want to just copy this file into that directory, enter ${chalk.cyan(
+                      "skip"
+                    )}.\n`
+                  );
+                }
+
+                if (err.code === 3 || err.code === 23) {
+                  return chalk.red(
+                    "The URL is malformed. Please ensure the URL is in correct format."
+                  );
+                }
+
+                return chalk.red(
+                  "Oops! We encountered an error, please see the log below for more details.\n" +
+                    err
+                );
+              }); // Import the build file in component-dist directory from npm
+            return res;
+            /**
+             * Returns true if command execution is successful and proceeds to commonPrompts
+             * returns and logs the error if execution fails
+             */
+          }
+
+          return chalk.red("This is a mandatory field, please answer.");
+        }
+      },
+      {
+        type: "input",
+        name: "downloadBuildFile",
+        message: function(answers) {
+          return (
+            "This URL - " +
+            chalk.bold.yellow(
+              "https://www.jsdelivr.com/package/npm/" +
+                answers.packageName +
+                "?version=" +
+                answers.version
+            ) +
+            " contains the directory of the package, please find the build file (generally in the dist or build folder) and paste the link here, we will download it for you in the existing folder."
+          );
+        },
+        when: function(responses) {
+          if (responses.downloadURL === "skip") {
+            return true; // Show this prompt if user says that package description is correct
+          }
+
+          return false; // Don't show this prompt if user says that package description is incorrect
+        },
+        validate: async props => {
+          if (props) {
+            var res = executeCommand(
+              "cd component-dist && curl -O " + props,
+              "downloadBuildFile"
+            )
+              .then(() => {
+                return true;
+              })
+              .catch(async err => {
+                if (err.code === 3 || err.code === 23) {
+                  return chalk.red(
+                    "The URL is malformed. Please ensure the URL is in correct format."
+                  );
+                }
+
+                return chalk.red(
+                  "Oops! We encountered an error, please see the log below for more details.\n" +
+                    err
+                );
+              }); // Import the build file in component-dist directory locally from computer
+            return res;
+            /**
+             * Returns true if command execution is successful and proceeds to commonPrompts
+             * returns and logs the error if execution fails
+             */
+          }
+
+          return chalk.red("This is a mandatory field, please answer.");
         }
       }
     ];
@@ -154,15 +277,79 @@ module.exports = class extends Generator {
         name: "pathOfBuildFile",
         message: "Please enter the path of the build file.",
         validate: async props => {
-          var res = executeCommand(
-            "mkdir dist && cp " + props + " dist",
-            "local"
-          ); // Import the build file in dist directory locally from computer
-          return res;
-          /**
-           * Returns true if command execution is successful and proceeds to commonPrompts
-           * returns and logs the error if execution fails
-           */
+          if (props) {
+            if (props === "skip") {
+              return true;
+            }
+
+            var res = executeCommand(
+              "mkdir component-dist && cp " + props + " component-dist",
+              "pathOfBuildFile"
+            )
+              .then(() => {
+                return true;
+              })
+              .catch(async err => {
+                if (err.code === 1) {
+                  return chalk.red(
+                    `Sorry, there already seems to be a directory with the same name ${chalk.cyan(
+                      "(component-dist)"
+                    )}, please change it's name or move it.\n   If you want to just copy this file into that directory, enter ${chalk.cyan(
+                      "skip"
+                    )}.\n`
+                  );
+                }
+
+                return chalk.red(
+                  "Oops! We encountered an error, please see the log below for more details.\n" +
+                    err
+                );
+              }); // Import the build file in component-dist directory locally from computer
+            return res;
+            /**
+             * Returns true if command execution is successful and proceeds to commonPrompts
+             * returns and logs the error if execution fails
+             */
+          }
+
+          return chalk.red("This is a mandatory field, please answer.");
+        }
+      },
+      {
+        type: "input",
+        name: "copyBuildFile",
+        message:
+          "Please enter the path of the build file, we will paste it into the existing directory.",
+        when: function(responses) {
+          if (responses.pathOfBuildFile === "skip") {
+            return true; // Show this prompt if user says that package description is correct
+          }
+
+          return false; // Don't show this prompt if user says that package description is incorrect
+        },
+        validate: async props => {
+          if (props) {
+            var res = executeCommand(
+              "cp " + props + " component-dist",
+              "pathOfBuildFile"
+            )
+              .then(() => {
+                return true;
+              })
+              .catch(async err => {
+                return chalk.red(
+                  "Oops! We encountered an error, please see the log below for more details.\n" +
+                    err
+                );
+              }); // Import the build file in component-dist directory locally from computer
+            return res;
+            /**
+             * Returns true if command execution is successful and proceeds to commonPrompts
+             * returns and logs the error if execution fails
+             */
+          }
+
+          return chalk.red("This is a mandatory field, please answer.");
         }
       }
     ];
