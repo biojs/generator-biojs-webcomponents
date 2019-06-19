@@ -173,14 +173,28 @@ module.exports = class extends Generator {
         type: "input",
         name: "toolNameComputer",
         message:
-          "Computer package name? This is a computer name with no capital letters or special characters apart from the - dash.",
+          "Computer package name? This is a computer name with NO capital letters or special characters apart from the hyphen ( - ) .",
+        validate: props => {
+          if (props.match(/^[a-z0-9-]+$/)) {
+            return true;
+          }
+
+          return "This is not a valid computer name for the project, you can use only small letters, number and hyphen. Enter again.";
+        },
         default: "biojs-webcomponent-tool-name-here"
       },
       {
         type: "input",
         name: "toolNameHuman",
         message:
-          'Thanks! Now, give me a human name for the project with only letters and NO special characters. e.g. "Genome Browser"',
+          'Thanks! Now, give me a human name for the project with only letters and NO special characters apart from the whitespace (space). e.g. "Genome Browser"',
+        validate: props => {
+          if (props.match(/^[A-Za-z ]+$/ || /^[A-Za-z\s]+$/)) {
+            return true;
+          }
+
+          return "This is not a valid human name for the project, you can use only letters and whitespace. Enter again.";
+        },
         default: "BioJS component"
       }
     ];

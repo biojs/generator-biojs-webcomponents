@@ -5,7 +5,7 @@ Generates the scaffold for a BioJS component automatically so you don't have to 
 
 This tool is specifically designed keeping in mind the idea of re-packaging existing components, so you can upgrade your components to BioJS 3 component style without having to re-write your component.
 
-## Getting started.
+## I. Getting started.
 
 Step 0: Install [node](https://nodejs.org/en/download/) and [npm](https://www.npmjs.com/) (npm is distributed with Node.js- which means that when you download Node.js, you automatically get npm installed on your computer).
 
@@ -38,7 +38,7 @@ After running this, you will be asked some questions about the details of your p
 Once it's complete, look at your new README file for build instructions, and check out `src/index.js`
 and `examples/index.html` to get started - there are instructions in the code. 
 
-## Description of your Project's Folder Structure
+## II. Description of your Project's Folder Structure
 Once you complete all the steps mentioned above you will have a project with a folder structure like this - 
 
 ```bash
@@ -85,7 +85,54 @@ Contains instructions for writing description of your component. You should edit
 
 Other files are starter files for your project. Generally, you do not need to edit these files.
 
-If you face any issue, feel free to contact us at [Gitter](https://gitter.im/yochannah).
+If you face any issue, feel free to contact us at [Gitter](https://gitter.im/biojs).
+
+## III. Contribute
+
+To contribute, clone this repository, install yeoman and run the code.
+
+Step 1: Clone the repository.
+
+a) Using HTTPS -
+
+```bash
+git clone https://github.com/biojs/generator-biojs-webcomponents.git
+```
+
+b) Using SSH -
+
+```bash
+git clone git@github.com:biojs/generator-biojs-webcomponents.git
+```
+
+Step 2: Go to generator's directory
+
+```bash
+cd generator-biojs-webcomponents
+```
+
+Step 3: Install yeoman
+
+```bash
+npm install -g yo
+```
+
+Step 4: Symlink the package
+
+```bash
+npm link
+```
+
+Step 5: Go out of the generator's directory. Run and test the generator locally.
+
+```bash
+cd ..
+mkdir test-biojs-generator
+cd test-biojs-generator
+yo biojs-webcomponents
+```
+
+Note: If you have installed the generator-biojs-webcomponents globally, there is no need to worry, this method will still work. You do not need to uninstall anything.
 
 ### To-do / roadmap. 
 
