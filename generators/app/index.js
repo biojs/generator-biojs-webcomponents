@@ -27,11 +27,17 @@ module.exports = class extends Generator {
         message:
           "Computer package name? This is a computer name with NO capital letters or special characters apart from the hyphen ( - ) .",
         validate: props => {
-          if (props.match(/^[a-z0-9-]+$/)) {
+          if (
+            props.match(/^[a-z0-9-]+$/) &&
+            props[0] !== "-" &&
+            props[props.length - 1] !== "-"
+          ) {
             return true;
           }
 
-          return "This is not a valid computer name for the project, you can use only small letters, number and hyphen. Enter again.";
+          return chalk.red(
+            "This is not a valid computer name for the project, you can use only small letters, number and hyphen and it should not begin or end with hypen. Enter again."
+          );
         },
         default: "biojs-webcomponent-tool-name-here"
       },
@@ -41,11 +47,16 @@ module.exports = class extends Generator {
         message:
           'Thanks! Now, give me a human name for the project with only letters and NO special characters apart from the whitespace (space). e.g. "Genome Browser"',
         validate: props => {
-          if (props.match(/^[A-Za-z ]+$/ || /^[A-Za-z\s]+$/)) {
+          if (
+            props.match(/^[A-Za-z ]+$/ || /^[A-Za-z\s]+$/) &&
+            props.trim() !== ""
+          ) {
             return true;
           }
 
-          return "This is not a valid human name for the project, you can use only letters and whitespace. Enter again.";
+          return chalk.red(
+            "This is not a valid human name for the project, you can use only letters and whitespace. Enter again."
+          );
         },
         default: "BioJS component"
       }
@@ -162,10 +173,13 @@ function toCamelCase(aString) {
 
   var camelString = "";
   tokens.map(function(token, index) {
-    if (index) {
-      camelString += token[0].toUpperCase(); // Capitalize the first letter of other words
-    } else {
-      camelString += token[0]; // Keep the first letter of the first word as it is
+    if (token.trim() !== "") {
+      // Remove extra space between the words
+      if (index) {
+        camelString += token[0].toUpperCase(); // Capitalize the first letter of other words
+      } else {
+        camelString += token[0]; // Keep the first letter of the first word as it is
+      }
     }
 
     camelString += token.substring(1, token.length);
