@@ -6,6 +6,7 @@ const helpers = require("yeoman-test");
 describe("generator-biojs-webcomponents:app", () => {
   beforeAll(() => {
     return helpers.run(path.join(__dirname, "../generators/app")).withPrompts({
+      upgradeOrMake: "Make a new Web Component",
       toolNameComputer: "test-component-tool",
       toolNameHuman: "Biojs test component"
     });
@@ -42,6 +43,7 @@ describe("generator-biojs-webcomponents:app", () => {
     return helpers
       .run(path.join(__dirname, "../generators/app"))
       .withPrompts({
+        upgradeOrMake: "Make a new Web Component",
         toolNameComputer: "",
         toolNameHuman: ""
       })
