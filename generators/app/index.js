@@ -2,8 +2,7 @@
 const Generator = require("yeoman-generator");
 const chalk = require("chalk");
 const yosay = require("yosay");
-const { exec } = require("child_process");
-const ora = require("ora");
+const validators = require("./validator");
 
 module.exports = class extends Generator {
   initializing() {
@@ -40,7 +39,7 @@ module.exports = class extends Generator {
     const upgradeComponentPrompts = [
       {
         type: "rawlist",
-        name: "projectSource",
+        name: "importFrom",
         message:
           "We need the build file (generally index.js, main.js or componentName.js) for this, import it using one of the options -",
         choices: [
@@ -57,52 +56,23 @@ module.exports = class extends Generator {
         type: "input",
         name: "packageName",
         message: "Enter the package name (case sensitive).",
-        validate: async function(props) {
-          if (props) {
-            let command = "npm view " + props;
-            let res = await executeCommand(command, "packageName")
-              .then(() => {
-                return true;
-              })
-              .catch(err => {
-                if (err.code === 1) {
-                  return chalk.red(
-                    "There's no package on npm with the name " +
-                      chalk.red.bold(props) +
-                      ". Please note that the package name is case sensitive."
-                  );
-                }
-
-                return chalk.red(
-                  "Oops! We encountered an error, please see the log below for more details.\n" +
-                    err
-                );
-              });
-            return res;
-            /**
-             * Returns true if command is succesfully executed and hence yeoman proceeds to the next prompt
-             * returns and logs the error if command execution fails
-             */
-          }
-
-          return chalk.red("This is a mandatory field, please answer."); // Warn user if no input is entered
-        }
+        validate: validators.packageName
       },
       {
         type: "confirm",
-        name: "packageNameConfirm",
+        name: "confirmPackageName",
         message: "Press enter if the package description shown is correct."
       },
       {
         type: "rawlist",
-        name: "goBackOrGoAhead",
+        name: "changeImportSource",
         message: "What do you want to do?",
         choices: [
           "Enter package name again.",
           "Import the file locally from your computer."
         ],
         when: function(responses) {
-          if (responses.packageNameConfirm) {
+          if (responses.confirmPackageName) {
             return false; // Don't show this prompt, if user says that package description is correct.
           }
 
@@ -116,41 +86,17 @@ module.exports = class extends Generator {
           "Great! We will import the latest version of your file from the npm package, if you don't want this, enter the version.",
         default: "latest",
         when: function(responses) {
-          if (responses.packageNameConfirm) {
+          if (responses.confirmPackageName) {
             return true; // Show this prompt if user says that package description is correct
           }
 
           return false; // Don't show this prompt if user says that package description is incorrect
         },
-        validate: async function(props, answers) {
-          if (props) {
-            let command = "npm view " + answers.packageName + "@" + props;
-            var res = await executeCommand(command, "version")
-              .then(() => {
-                return true;
-              })
-              .catch(() =>
-                chalk.red(
-                  "Sorry, the version - " +
-                    chalk.red.bold(props) +
-                    " doesn't exist. Please enter again. Enter " +
-                    chalk.cyan("latest") +
-                    " if you want to import the latest version."
-                )
-              );
-            return res;
-          }
-
-          return chalk.red(
-            "This is a mandatory field, please answer. Enter " +
-              chalk.cyan("latest") +
-              " if you want to import the latest version."
-          ); // Warn user if no input is entered
-        }
+        validate: validators.version
       },
       {
         type: "input",
-        name: "downloadURL",
+        name: "importBuildFileFromNPM",
         message: function(answers) {
           return (
             "This URL - " +
@@ -164,60 +110,17 @@ module.exports = class extends Generator {
           );
         },
         when: function(responses) {
-          if (responses.packageNameConfirm) {
+          if (responses.confirmPackageName) {
             return true; // Show this prompt if user says that package description is correct
           }
 
           return false; // Don't show this prompt if user says that package description is incorrect
         },
-        validate: async function(props) {
-          if (props) {
-            if (props === "skip") {
-              return true;
-            }
-
-            var res = await executeCommand(
-              "mkdir component-dist && cd component-dist && curl -O " + props,
-              "downloadURL"
-            )
-              .then(() => {
-                return true;
-              })
-              .catch(async err => {
-                if (err.code === 1) {
-                  return chalk.red(
-                    `Sorry, there already seems to be a directory with the same name ${chalk.cyan(
-                      "(component-dist)"
-                    )}, please change it's name or move it.\n   If you want to just copy this file into that directory, enter ${chalk.cyan(
-                      "skip"
-                    )}.\n`
-                  );
-                }
-
-                if (err.code === 3 || err.code === 23) {
-                  return chalk.red(
-                    "The URL is malformed. Please ensure the URL is in correct format."
-                  );
-                }
-
-                return chalk.red(
-                  "Oops! We encountered an error, please see the log below for more details.\n" +
-                    err
-                );
-              }); // Import the build file in component-dist directory from npm
-            return res;
-            /**
-             * Returns true if command execution is successful and proceeds to commonPrompts
-             * returns and logs the error if execution fails
-             */
-          }
-
-          return chalk.red("This is a mandatory field, please answer.");
-        }
+        validate: validators.importBuildFileFromNPM
       },
       {
         type: "input",
-        name: "downloadBuildFile",
+        name: "copyBuildFileFromNPM",
         message: function(answers) {
           return (
             "This URL - " +
@@ -231,42 +134,13 @@ module.exports = class extends Generator {
           );
         },
         when: function(responses) {
-          if (responses.downloadURL === "skip") {
+          if (responses.importBuildFileFromNPM === "skip") {
             return true; // Show this prompt if user says that package description is correct
           }
 
           return false; // Don't show this prompt if user says that package description is incorrect
         },
-        validate: async props => {
-          if (props) {
-            var res = executeCommand(
-              "cd component-dist && curl -O " + props,
-              "downloadBuildFile"
-            )
-              .then(() => {
-                return true;
-              })
-              .catch(async err => {
-                if (err.code === 3 || err.code === 23) {
-                  return chalk.red(
-                    "The URL is malformed. Please ensure the URL is in correct format."
-                  );
-                }
-
-                return chalk.red(
-                  "Oops! We encountered an error, please see the log below for more details.\n" +
-                    err
-                );
-              }); // Import the build file in component-dist directory locally from computer
-            return res;
-            /**
-             * Returns true if command execution is successful and proceeds to commonPrompts
-             * returns and logs the error if execution fails
-             */
-          }
-
-          return chalk.red("This is a mandatory field, please answer.");
-        }
+        validate: validators.copyBuildFileFromNPM
       }
     ];
 
@@ -274,83 +148,23 @@ module.exports = class extends Generator {
     const localPrompts = [
       {
         type: "input",
-        name: "pathOfBuildFile",
+        name: "importBuildFileLocally",
         message: "Please enter the path of the build file.",
-        validate: async props => {
-          if (props) {
-            if (props === "skip") {
-              return true;
-            }
-
-            var res = executeCommand(
-              "mkdir component-dist && cp " + props + " component-dist",
-              "pathOfBuildFile"
-            )
-              .then(() => {
-                return true;
-              })
-              .catch(async err => {
-                if (err.code === 1) {
-                  return chalk.red(
-                    `Sorry, there already seems to be a directory with the same name ${chalk.cyan(
-                      "(component-dist)"
-                    )}, please change it's name or move it.\n   If you want to just copy this file into that directory, enter ${chalk.cyan(
-                      "skip"
-                    )}.\n`
-                  );
-                }
-
-                return chalk.red(
-                  "Oops! We encountered an error, please see the log below for more details.\n" +
-                    err
-                );
-              }); // Import the build file in component-dist directory locally from computer
-            return res;
-            /**
-             * Returns true if command execution is successful and proceeds to commonPrompts
-             * returns and logs the error if execution fails
-             */
-          }
-
-          return chalk.red("This is a mandatory field, please answer.");
-        }
+        validate: validators.importBuildFileLocally
       },
       {
         type: "input",
-        name: "copyBuildFile",
+        name: "copyBuildFileLocally",
         message:
           "Please enter the path of the build file, we will paste it into the existing directory.",
         when: function(responses) {
-          if (responses.pathOfBuildFile === "skip") {
+          if (responses.importBuildFileLocally === "skip") {
             return true; // Show this prompt if user says that package description is correct
           }
 
           return false; // Don't show this prompt if user says that package description is incorrect
         },
-        validate: async props => {
-          if (props) {
-            var res = executeCommand(
-              "cp " + props + " component-dist",
-              "pathOfBuildFile"
-            )
-              .then(() => {
-                return true;
-              })
-              .catch(async err => {
-                return chalk.red(
-                  "Oops! We encountered an error, please see the log below for more details.\n" +
-                    err
-                );
-              }); // Import the build file in component-dist directory locally from computer
-            return res;
-            /**
-             * Returns true if command execution is successful and proceeds to commonPrompts
-             * returns and logs the error if execution fails
-             */
-          }
-
-          return chalk.red("This is a mandatory field, please answer.");
-        }
+        validate: validators.copyBuildFileLocally
       }
     ];
 
@@ -361,13 +175,7 @@ module.exports = class extends Generator {
         name: "toolNameComputer",
         message:
           "Computer package name? This is a computer name with NO capital letters or special characters apart from the hyphen ( - ) .",
-        validate: props => {
-          if (props.match(/^[a-z0-9-]+$/)) {
-            return true;
-          }
-
-          return "This is not a valid computer name for the project, you can use only small letters, number and hyphen. Enter again.";
-        },
+        validate: validators.toolNameComputer,
         default: "biojs-webcomponent-tool-name-here"
       },
       {
@@ -375,13 +183,7 @@ module.exports = class extends Generator {
         name: "toolNameHuman",
         message:
           'Thanks! Now, give me a human name for the project with only letters and NO special characters apart from the whitespace (space). e.g. "Genome Browser"',
-        validate: props => {
-          if (props.match(/^[A-Za-z ]+$/ || /^[A-Za-z\s]+$/)) {
-            return true;
-          }
-
-          return "This is not a valid human name for the project, you can use only letters and whitespace. Enter again.";
-        },
+        validate: validators.toolNameHuman,
         default: "BioJS component"
       }
     ];
@@ -398,8 +200,8 @@ module.exports = class extends Generator {
         if (repeatLocalOrNpmPrompts === npmPrompts[2].choices[0]) {
           return this.prompt(npmPrompts).then(props => {
             // If user chooses to go back and choose source of importing file again
-            if (props.goBackOrGoAhead) {
-              return recursivePromptExecution(props.goBackOrGoAhead); // Call the function recursively
+            if (props.changeImportSource) {
+              return recursivePromptExecution(props.changeImportSource); // Call the function recursively
             }
 
             // If user chooses to import from npm after starting over
@@ -426,7 +228,7 @@ module.exports = class extends Generator {
         if (props.upgradeOrMake === initialPrompts[0].choices[0]) {
           return this.prompt(upgradeComponentPrompts).then(props => {
             // If user chooses to import file locally from computer
-            if (props.projectSource === upgradeComponentPrompts[0].choices[0]) {
+            if (props.importFrom === upgradeComponentPrompts[0].choices[0]) {
               return this.prompt(localPrompts).then(() => {
                 return this.prompt(commonPrompts).then(props => {
                   this.props = props;
@@ -438,8 +240,8 @@ module.exports = class extends Generator {
             // If user chooses to import file from npm
             return this.prompt(npmPrompts).then(props => {
               // If user chooses to go back and choose source of importing file again
-              if (props.goBackOrGoAhead) {
-                return recursivePromptExecution(props.goBackOrGoAhead); // Call the function recursively
+              if (props.changeImportSource) {
+                return recursivePromptExecution(props.changeImportSource); // Call the function recursively
               }
 
               // If user chooses to import from npm initially
@@ -569,54 +371,17 @@ function toCamelCase(aString) {
 
   var camelString = "";
   tokens.map(function(token, index) {
-    if (index) {
-      camelString += token[0].toUpperCase(); // Capitalize the first letter of other words
-    } else {
-      camelString += token[0]; // Keep the first letter of the first word as it is
+    if (token.trim() !== "") {
+      // Remove extra space between the words
+      if (index) {
+        camelString += token[0].toUpperCase(); // Capitalize the first letter of other words
+      } else {
+        camelString += token[0]; // Keep the first letter of the first word as it is
+      }
     }
 
     camelString += token.substring(1, token.length);
     return true;
   });
   return camelString;
-}
-
-/**
- * Executes command in terminal and returns the output or error
- * @param {string} command the command to be executed
- * @param {string} type whether the command is related to npm or not
- * @returns {Promise}, resolves and returns true if execution is successful, rejects and returns error otherwise.
- */
-function executeCommand(command, type) {
-  const spinner = ora({
-    text: "Loading..",
-    spinner: "weather"
-  });
-  spinner.start();
-  return new Promise((resolve, reject) => {
-    exec(command, (err, stdout) => {
-      if (err) {
-        // The command couldn't be executed
-        spinner.stop();
-        reject(err);
-      } else if (type === "version") {
-        // Command successfully executed
-        if (stdout) {
-          spinner.stop();
-          resolve(true);
-        } else {
-          spinner.stop();
-          let err = "Sorry, that version does not exist!";
-          reject(err);
-        }
-      } else if (stdout) {
-        process.stdout.write(`\n ${stdout} \n`); // If there is an output display it
-        spinner.stop();
-        resolve(true);
-      } else {
-        spinner.stop();
-        resolve(true);
-      }
-    });
-  });
 }
