@@ -1,5 +1,9 @@
 # generator-biojs-webcomponents [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
-Generates the scaffold for a BioJS component automatically so you don't have to do it yourself. 
+Generates the scaffold for a BioJS component automatically so you don't have to do it yourself.
+
+This guide is for using the generator to make new components and upgrade existing ones. See [Section I](#i-getting-started) for getting started with the generator and installing it and [Section II](#ii-description-of-your-projects-folder-structure) for description of your project's directory after running the generator. Once you install the generator and run it, you will be asked some questions, you can read more about them in [Section III](#iii-workflow-and-questions).
+
+For contributing to this project, see the [Contribution guide](CONTRIBUTING.md).
 
 ### What this tool currently does
 
@@ -33,7 +37,7 @@ Step 2b: Generate your new project.
 yo @biojs/biojs-webcomponents
 ```
 
-After running this, you will be asked some questions about the details of your project, after which the required dependencies will be automatically installed.
+After running this, you will be asked some questions about the details of your project, after which the required dependencies will be automatically installed. You can read more about the whole workflow and the questions asked [here](#iii-workflow-and-questions).
 
 Once it's complete, look at your new README file for build instructions, and check out `src/index.js`
 and `examples/index.html` to get started - there are instructions in the code. 
@@ -87,59 +91,105 @@ Other files are starter files for your project. Generally, you do not need to ed
 
 If you face any issue, feel free to contact us at [Gitter](https://gitter.im/biojs).
 
-## III. Contribute
+## III. Workflow and Questions
 
-To contribute, clone this repository, install yeoman and run the code.
-
-Step 1: Clone the repository.
-
-a) Using HTTPS -
+After running ```yo @biojs/biojs-webcomponents``` in your terminal, you will be asked -
 
 ```bash
-git clone https://github.com/biojs/generator-biojs-webcomponents.git
+? What do you want to do today?
+> Upgrade an existing component to a Web Component
+  Make a new Web Component
 ```
 
-b) Using SSH -
+Based on your choice, you will be asked different questions. Read more -
+
+### Upgrade an existing component to a Web Component
+
+A) Import the build file of your existing component into the project's directory. 
+
+1) You can import the build file from your local computer.
+2) If you do not have the build file in your computer, you can import it from your component's package on npm.
 
 ```bash
-git clone git@github.com:biojs/generator-biojs-webcomponents.git
+? We need the build file (generally index.js, main.js or componentName.js) for this,
+  import it using one of the options - 
+  1) Tell us the path of the file on your local machine and we will import it in the project.
+  2) Tell us the npm package name, version, etc. and we will import it.
 ```
 
-Step 2: Go to generator's directory
+Import from your local machine -
+
+B) Enter the path of your build file.
 
 ```bash
-cd generator-biojs-webcomponents
+Please enter the path of the build file.
 ```
 
-Step 3: Install yeoman
+The generator will make a directory named ```component-dist``` in your component's directory. Your build file will be imported in this directory. If this directory (component-dist) already exists, you can enter ```skip``` and enter the path of the build file in the next question (given below).
 
 ```bash
-npm install -g yo
+Please enter the path of the build file, we will paste it into the existing directory.
 ```
 
-Step 4: Symlink the package
+Import from your compnent's package on npm - 
+
+C) You have to enter the package name (case sensitive) of your component, the generator will show you the description of your package and ask whether the description shown is correct or not. 
 
 ```bash
-npm link
+Enter the package name (case sensitive).
+Press enter if the package description shown is correct.
 ```
 
-Step 5: Go out of the generator's directory. Run and test the generator locally.
+If the description shown is incorrect, press ```N``` and you will go back to step A where you can choose to enter the package name again or import the file from local storage.
 
 ```bash
-cd ..
-mkdir test-biojs-generator
-cd test-biojs-generator
-yo biojs-webcomponents
+? What do you want to do? 
+  1) Enter package name again.
+  2) Import the file locally from your computer.
 ```
 
-Note: If you have installed the generator-biojs-webcomponents globally, there is no need to worry, this method will still work. You do not need to uninstall anything.
+If the description shown is correct, press ```Enter``` or ```Y```. You will be asked about the version of the package you want to import from.
 
-### To-do / roadmap. 
+```bash
+Great! We will import the latest version of your file from the npm package, if you don't want this,
+enter the version.
+```
 
-See [issues](issues) for more details - we still need the following: 
+You can press ```Enter``` if you want to import from the latest version or you can enter the version you need. If the version exists, you will be shown a URL which will redirect you to your package's directory.
 
-1. Scaffolder for _new_ browser tools (i.e. not just a wrapper for older tools)
-2. Scaffolder for command line tools. 
+```bash
+This URL - https://www.jsdelivr.com/package/npm/<your-package-name>?version=<your-package-version>
+contains the directory of the package, please find the build file (generally in the dist or build 
+folder) and paste the link here, we will download it for you. 
+```
+
+After going to this URL, you can find the build file in the root folder or a separate folder named build or dist. The build file is generally named index.js, package_name.js, index.min.js or package_name.min.js. 
+
+You have to copy the URL/link to the build file and enter it and the generator will download it for you in a directory named ```component-dist```. If this directory (component-dist) already exists then enter ```skip``` and enter the URL in the next question (given below).
+
+```bash
+This URL - https://www.jsdelivr.com/package/npm/<your-package-name>?version=<your-package-version>
+contains the directory of the package, please find the build file (generally in the dist or build
+folder) and paste the link here, we will download it for you in the existing folder. 
+```
+
+D) After successfully importing the build file, you will be asked the same questions (questions A and B in the next section) about your component as asked while [making a new one](#make-a-new-web-component).
+
+### Make a new Web Component
+
+A) Enter computer package name. This should contain only small alphabets and hyphen ( - ) between the words. You can't use CAPITAL letters, number, space, any other special character(s) and hyphen at beginning or end.
+
+```bash
+Computer package name? This is a computer name with NO capital letters or special 
+characters apart from the hyphen ( - ) .
+```
+
+B) Enter human name for the project. This can only contain letters (small and capital) and spaces, no other special characters or numbers.
+
+```bash
+Thanks! Now, give me a human name for the project with only letters and NO special
+characters apart from the whitespace (space). e.g. \"Genome Browser\"
+```
 
 ## License
 
