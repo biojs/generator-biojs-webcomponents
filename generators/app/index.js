@@ -2,6 +2,8 @@
 const Generator = require("yeoman-generator");
 const chalk = require("chalk");
 const yosay = require("yosay");
+const { exec } = require("child_process");
+const ora = require("ora");
 
 module.exports = class extends Generator {
   initializing() {
@@ -10,7 +12,7 @@ module.exports = class extends Generator {
     });
   }
 
-  prompting() {
+  async prompting() {
     // Have Yeoman greet the user.
     this.log(
       yosay(
@@ -20,7 +22,340 @@ module.exports = class extends Generator {
       )
     );
 
-    const prompts = [
+    // First prompt
+    const initialPrompts = [
+      {
+        type: "list",
+        name: "upgradeOrMake",
+        message: "What do you want to do today?",
+        choices: [
+          "Upgrade an existing component to a Web Component",
+          "Make a new Web Component"
+        ],
+        default: 0
+      }
+    ];
+
+    // Secondary prompts if user chooses to upgrade an existing component to Web component.
+    const upgradeComponentPrompts = [
+      {
+        type: "rawlist",
+        name: "projectSource",
+        message:
+          "We need the build file (generally index.js, main.js or componentName.js) for this, import it using one of the options -",
+        choices: [
+          "Tell us the path of the file on your local machine and we will import it in the project.",
+          "Tell us the npm package name, version, etc. and we will import it."
+        ],
+        default: 0
+      }
+    ];
+
+    // Prompts if user chooses to import file(s) using npm
+    const npmPrompts = [
+      {
+        type: "input",
+        name: "packageName",
+        message: "Enter the package name (case sensitive).",
+        validate: async function(props) {
+          if (props) {
+            let command = "npm view " + props;
+            let res = await executeCommand(command, "packageName")
+              .then(() => {
+                return true;
+              })
+              .catch(err => {
+                if (err.code === 1) {
+                  return chalk.red(
+                    "There's no package on npm with the name " +
+                      chalk.red.bold(props) +
+                      ". Please note that the package name is case sensitive."
+                  );
+                }
+
+                return chalk.red(
+                  "Oops! We encountered an error, please see the log below for more details.\n" +
+                    err
+                );
+              });
+            return res;
+            /**
+             * Returns true if command is succesfully executed and hence yeoman proceeds to the next prompt
+             * returns and logs the error if command execution fails
+             */
+          }
+
+          return chalk.red("This is a mandatory field, please answer."); // Warn user if no input is entered
+        }
+      },
+      {
+        type: "confirm",
+        name: "packageNameConfirm",
+        message: "Press enter if the package description shown is correct."
+      },
+      {
+        type: "rawlist",
+        name: "goBackOrGoAhead",
+        message: "What do you want to do?",
+        choices: [
+          "Enter package name again.",
+          "Import the file locally from your computer."
+        ],
+        when: function(responses) {
+          if (responses.packageNameConfirm) {
+            return false; // Don't show this prompt, if user says that package description is correct.
+          }
+
+          return true; // Show this prompt if user says that package description is not correct.
+        }
+      },
+      {
+        type: "input",
+        name: "version",
+        message:
+          "Great! We will import the latest version of your file from the npm package, if you don't want this, enter the version.",
+        default: "latest",
+        when: function(responses) {
+          if (responses.packageNameConfirm) {
+            return true; // Show this prompt if user says that package description is correct
+          }
+
+          return false; // Don't show this prompt if user says that package description is incorrect
+        },
+        validate: async function(props, answers) {
+          if (props) {
+            let command = "npm view " + answers.packageName + "@" + props;
+            var res = await executeCommand(command, "version")
+              .then(() => {
+                return true;
+              })
+              .catch(() =>
+                chalk.red(
+                  "Sorry, the version - " +
+                    chalk.red.bold(props) +
+                    " doesn't exist. Please enter again. Enter " +
+                    chalk.cyan("latest") +
+                    " if you want to import the latest version."
+                )
+              );
+            return res;
+          }
+
+          return chalk.red(
+            "This is a mandatory field, please answer. Enter " +
+              chalk.cyan("latest") +
+              " if you want to import the latest version."
+          ); // Warn user if no input is entered
+        }
+      },
+      {
+        type: "input",
+        name: "downloadURL",
+        message: function(answers) {
+          return (
+            "This URL - " +
+            chalk.bold.yellow(
+              "https://www.jsdelivr.com/package/npm/" +
+                answers.packageName +
+                "?version=" +
+                answers.version
+            ) +
+            " contains the directory of the package, please find the build file (generally in the dist or build folder) and paste the link here, we will download it for you."
+          );
+        },
+        when: function(responses) {
+          if (responses.packageNameConfirm) {
+            return true; // Show this prompt if user says that package description is correct
+          }
+
+          return false; // Don't show this prompt if user says that package description is incorrect
+        },
+        validate: async function(props) {
+          if (props) {
+            if (props === "skip") {
+              return true;
+            }
+
+            var res = await executeCommand(
+              "mkdir component-dist && cd component-dist && curl -O " + props,
+              "downloadURL"
+            )
+              .then(() => {
+                return true;
+              })
+              .catch(async err => {
+                if (err.code === 1) {
+                  return chalk.red(
+                    `Sorry, there already seems to be a directory with the same name ${chalk.cyan(
+                      "(component-dist)"
+                    )}, please change it's name or move it.\n   If you want to just copy this file into that directory, enter ${chalk.cyan(
+                      "skip"
+                    )}.\n`
+                  );
+                }
+
+                if (err.code === 3 || err.code === 23) {
+                  return chalk.red(
+                    "The URL is malformed. Please ensure the URL is in correct format."
+                  );
+                }
+
+                return chalk.red(
+                  "Oops! We encountered an error, please see the log below for more details.\n" +
+                    err
+                );
+              }); // Import the build file in component-dist directory from npm
+            return res;
+            /**
+             * Returns true if command execution is successful and proceeds to commonPrompts
+             * returns and logs the error if execution fails
+             */
+          }
+
+          return chalk.red("This is a mandatory field, please answer.");
+        }
+      },
+      {
+        type: "input",
+        name: "downloadBuildFile",
+        message: function(answers) {
+          return (
+            "This URL - " +
+            chalk.bold.yellow(
+              "https://www.jsdelivr.com/package/npm/" +
+                answers.packageName +
+                "?version=" +
+                answers.version
+            ) +
+            " contains the directory of the package, please find the build file (generally in the dist or build folder) and paste the link here, we will download it for you in the existing folder."
+          );
+        },
+        when: function(responses) {
+          if (responses.downloadURL === "skip") {
+            return true; // Show this prompt if user says that package description is correct
+          }
+
+          return false; // Don't show this prompt if user says that package description is incorrect
+        },
+        validate: async props => {
+          if (props) {
+            var res = executeCommand(
+              "cd component-dist && curl -O " + props,
+              "downloadBuildFile"
+            )
+              .then(() => {
+                return true;
+              })
+              .catch(async err => {
+                if (err.code === 3 || err.code === 23) {
+                  return chalk.red(
+                    "The URL is malformed. Please ensure the URL is in correct format."
+                  );
+                }
+
+                return chalk.red(
+                  "Oops! We encountered an error, please see the log below for more details.\n" +
+                    err
+                );
+              }); // Import the build file in component-dist directory locally from computer
+            return res;
+            /**
+             * Returns true if command execution is successful and proceeds to commonPrompts
+             * returns and logs the error if execution fails
+             */
+          }
+
+          return chalk.red("This is a mandatory field, please answer.");
+        }
+      }
+    ];
+
+    // Prompt(s) if user chooses to import files locally from computer
+    const localPrompts = [
+      {
+        type: "input",
+        name: "pathOfBuildFile",
+        message: "Please enter the path of the build file.",
+        validate: async props => {
+          if (props) {
+            if (props === "skip") {
+              return true;
+            }
+
+            var res = executeCommand(
+              "mkdir component-dist && cp " + props + " component-dist",
+              "pathOfBuildFile"
+            )
+              .then(() => {
+                return true;
+              })
+              .catch(async err => {
+                if (err.code === 1) {
+                  return chalk.red(
+                    `Sorry, there already seems to be a directory with the same name ${chalk.cyan(
+                      "(component-dist)"
+                    )}, please change it's name or move it.\n   If you want to just copy this file into that directory, enter ${chalk.cyan(
+                      "skip"
+                    )}.\n`
+                  );
+                }
+
+                return chalk.red(
+                  "Oops! We encountered an error, please see the log below for more details.\n" +
+                    err
+                );
+              }); // Import the build file in component-dist directory locally from computer
+            return res;
+            /**
+             * Returns true if command execution is successful and proceeds to commonPrompts
+             * returns and logs the error if execution fails
+             */
+          }
+
+          return chalk.red("This is a mandatory field, please answer.");
+        }
+      },
+      {
+        type: "input",
+        name: "copyBuildFile",
+        message:
+          "Please enter the path of the build file, we will paste it into the existing directory.",
+        when: function(responses) {
+          if (responses.pathOfBuildFile === "skip") {
+            return true; // Show this prompt if user says that package description is correct
+          }
+
+          return false; // Don't show this prompt if user says that package description is incorrect
+        },
+        validate: async props => {
+          if (props) {
+            var res = executeCommand(
+              "cp " + props + " component-dist",
+              "pathOfBuildFile"
+            )
+              .then(() => {
+                return true;
+              })
+              .catch(async err => {
+                return chalk.red(
+                  "Oops! We encountered an error, please see the log below for more details.\n" +
+                    err
+                );
+              }); // Import the build file in component-dist directory locally from computer
+            return res;
+            /**
+             * Returns true if command execution is successful and proceeds to commonPrompts
+             * returns and logs the error if execution fails
+             */
+          }
+
+          return chalk.red("This is a mandatory field, please answer.");
+        }
+      }
+    ];
+
+    // Secondary prompts is user chooses to make a new component and final prompts if user chooses to upgrade an existing component
+    const commonPrompts = [
       {
         type: "input",
         name: "toolNameComputer",
@@ -61,11 +396,83 @@ module.exports = class extends Generator {
         default: "BioJS component"
       }
     ];
-    return this.prompt(prompts).then(props => {
-      // To access props later use this.props.someAnswer;
-      this.props = props;
-      this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
-    });
+
+    /** Interacts with the user using prompts
+     * Recursive so that user can go to a previous step and/or change method of importing file
+     * @param {string} repeatLocalOrNpmPrompts tells the generator which prompts should be shown again (localPrompts or npmPrompts)
+     * @returns {Promise} to execute prompts and wait for there execution to finish
+     */
+    const recursivePromptExecution = repeatLocalOrNpmPrompts => {
+      // If user changes the method of importing later, recursive execution
+      if (repeatLocalOrNpmPrompts) {
+        // If user chooses to enter package name again when package description is incorrect
+        if (repeatLocalOrNpmPrompts === npmPrompts[2].choices[0]) {
+          return this.prompt(npmPrompts).then(props => {
+            // If user chooses to go back and choose source of importing file again
+            if (props.goBackOrGoAhead) {
+              return recursivePromptExecution(props.goBackOrGoAhead); // Call the function recursively
+            }
+
+            // If user chooses to import from npm after starting over
+            return this.prompt(commonPrompts).then(props => {
+              this.props = props;
+              this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
+            });
+          });
+        }
+
+        // If user chooses to import file locally when package description is incorrect
+        return this.prompt(localPrompts).then(() => {
+          return this.prompt(commonPrompts).then(props => {
+            this.props = props;
+            this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
+          });
+        });
+      }
+
+      // Normal (initial) prompt execution
+      return this.prompt(initialPrompts).then(props => {
+        // To access props later use this.props.someAnswer;
+        // If user chooses to upgrade an existing component
+        if (props.upgradeOrMake === initialPrompts[0].choices[0]) {
+          return this.prompt(upgradeComponentPrompts).then(props => {
+            // If user chooses to import file locally from computer
+            if (props.projectSource === upgradeComponentPrompts[0].choices[0]) {
+              return this.prompt(localPrompts).then(() => {
+                return this.prompt(commonPrompts).then(props => {
+                  this.props = props;
+                  this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
+                });
+              });
+            }
+
+            // If user chooses to import file from npm
+            return this.prompt(npmPrompts).then(props => {
+              // If user chooses to go back and choose source of importing file again
+              if (props.goBackOrGoAhead) {
+                return recursivePromptExecution(props.goBackOrGoAhead); // Call the function recursively
+              }
+
+              // If user chooses to import from npm initially
+              return this.prompt(commonPrompts).then(props => {
+                this.props = props;
+                this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
+              });
+            });
+          });
+        }
+
+        // If user chooses to make a new component
+        if (props.upgradeOrMake === initialPrompts[0].choices[1]) {
+          return this.prompt(commonPrompts).then(props => {
+            this.props = props;
+            this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
+          });
+        }
+      });
+    };
+
+    await recursivePromptExecution(); // Wait for the function execution to finish
   }
 
   writing() {
@@ -186,4 +593,44 @@ function toCamelCase(aString) {
     return true;
   });
   return camelString;
+}
+
+/**
+ * Executes command in terminal and returns the output or error
+ * @param {string} command the command to be executed
+ * @param {string} type whether the command is related to npm or not
+ * @returns {Promise}, resolves and returns true if execution is successful, rejects and returns error otherwise.
+ */
+function executeCommand(command, type) {
+  const spinner = ora({
+    text: "Loading..",
+    spinner: "weather"
+  });
+  spinner.start();
+  return new Promise((resolve, reject) => {
+    exec(command, (err, stdout) => {
+      if (err) {
+        // The command couldn't be executed
+        spinner.stop();
+        reject(err);
+      } else if (type === "version") {
+        // Command successfully executed
+        if (stdout) {
+          spinner.stop();
+          resolve(true);
+        } else {
+          spinner.stop();
+          let err = "Sorry, that version does not exist!";
+          reject(err);
+        }
+      } else if (stdout) {
+        process.stdout.write(`\n ${stdout} \n`); // If there is an output display it
+        spinner.stop();
+        resolve(true);
+      } else {
+        spinner.stop();
+        resolve(true);
+      }
+    });
+  });
 }
