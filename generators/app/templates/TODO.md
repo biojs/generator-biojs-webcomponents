@@ -15,7 +15,16 @@ produced the basic files needed for your tool. You'll still need to handle the i
   },```
 - [] add any css styles to [src/style.less](src/style.less)
 
-All those done? Brilliant! To push this component to npm, you'll need an [account at npmjs.com](https://www.npmjs.com/). Once you've signed up....
+Run the commands written below in the given order - 
+1. `npm run less`
+2. `npm run build`
+3. `npm start`
+
+Navigate to the `examples` page and check if your component is working.
+
+All those done? Now anybody can use your Web Component by importing the [bundle.js](dist/bundle.js) file in the [dist](dist) directory and [style.css](dist/style.css) if you have a stylesheet.
+
+Brilliant! To push this component to npm, you'll need an [account at npmjs.com](https://www.npmjs.com/). Once you've signed up....
 
 1. Run `npm login` in your terminal to sign in to npm. Add your username and password when prompted.
 2. Run `npm publish` - this step will publish your app onto the public npm repository.

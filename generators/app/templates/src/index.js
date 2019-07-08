@@ -1,4 +1,3 @@
-import 'hybrids/shim';
 import {
   define
 } from 'hybrids';
@@ -63,13 +62,18 @@ function initComponent(options) {
       /** you have a gene visualisation so you want a gene id  **/
       /** as a parameter, set the parameter as an attribute,   **/
       /** and then get the attribute from host, like this:     **/
-      var myGeneId = host.getAttribute("geneId");
+
+      var myGeneId = host.getAttribute("geneId"); 
+
       /** The line above would return BRCA1 if you've left the **/
       /** default settings. Delete if needed. **/
+      /** This is just an example, you should remove it later. **/
 
       host.innerHTML = "<div>A placeholder for a pretty" +
         " visualisation for " + myGeneId + ".</div>";
 
+      /** The line above explains how you can interact with your Web Component. **/
+      /** You should remove it later. **/
 
       //leave this line here. Deleting it will result in your css going AWOL.
       addStylesIfNeeded();
