@@ -91,6 +91,25 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
   it("skips the current question if user enters skip", async () => {
     assert.equal(await validators.importBuildFileLocally("skip"), true);
   });
+  it("renames the directory in which build file will be imported", async () => {
+    await validators
+      .renameDirectory("test-directory")
+      .then(() => assert.file(["test-directory", "component-dist"]));
+  });
+  it("pastes the build file in renamed directory", async () => {
+    await validators
+      .importBuildFileInRenamedDirectory(path.join(__dirname, "../LICENSE"), {
+        renameDirectory: "test-directory"
+      })
+      .then(() => assert.file(["test-directory/LICENSE"]));
+  });
+  it("overwrites the directory content", async () => {
+    await validators
+      .overwriteDirectoryContent(path.join(__dirname, "../README.md"))
+      .then(() => {
+        assert.file(["component-dist/README.md"]);
+      });
+  });
   it("throws an error if user enters an empty string as path of build file", async () => {
     assert.equal(
       await validators.importBuildFileFromNPM(""),
