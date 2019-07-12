@@ -88,14 +88,6 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
         assert.file(["component-dist/validator.js"]);
       });
   });
-  it("only pastes the build file", async () => {
-    // This will work as the directory component-dist already exists because of the above test
-    await validators
-      .copyBuildFileLocally(path.join(__dirname, "../LICENSE"))
-      .then(() => {
-        assert.file(["component-dist/LICENSE"]);
-      });
-  });
   it("skips the current question if user enters skip", async () => {
     assert.equal(await validators.importBuildFileLocally("skip"), true);
   });
@@ -105,9 +97,9 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
       chalk.red("This is a mandatory field, please answer.")
     );
   });
-  it("throws an error if user enters an empty string as path of build file to be copied", async () => {
+  it("throws an error if user enters an empty string as the name for directory in which build file will be imported", async () => {
     assert.equal(
-      await validators.copyBuildFileLocally(""),
+      await validators.renameDirectory(""),
       chalk.red("This is a mandatory field, please answer.")
     );
   });

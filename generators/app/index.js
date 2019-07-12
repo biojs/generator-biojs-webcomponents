@@ -201,18 +201,73 @@ module.exports = class extends Generator {
         validate: validators.importBuildFileLocally
       },
       {
-        type: "input",
-        name: "copyBuildFileLocally",
-        message:
-          "Please enter the path of the build file, we will paste it into the existing directory.",
+        type: "list",
+        name: "renameOrOverwrite",
+        message: "What do you want to do?",
+        choices: [
+          "Rename the component-dist directory we are making.",
+          "Overwrite the files in the existing component-dist directory."
+        ],
         when: function(responses) {
           if (responses.importBuildFileLocally === "skip") {
             return true; // Show this prompt if user says that package description is correct
           }
 
           return false; // Don't show this prompt if user says that package description is incorrect
+        }
+      },
+      {
+        type: "input",
+        name: "renameDirectory",
+        message: `Enter the name of the directory in which you want to import the build file, make sure it is not ${chalk.cyan(
+          "dist"
+        )} or ${chalk.cyan("component-dist")}.`,
+        when: function(responses) {
+          if (
+            responses.renameOrOverwrite ===
+            "Rename the component-dist directory we are making."
+          ) {
+            return true;
+          }
+
+          return false;
         },
-        validate: validators.copyBuildFileLocally
+        validate: validators.renameDirectory
+      },
+      {
+        type: "input",
+        name: "importBuildFileInRenamedDirectory",
+        message:
+          "Great! Now enter the path of the build file to import it in the renamed directory.",
+        when: function(responses) {
+          if (
+            responses.renameOrOverwrite ===
+            "Rename the component-dist directory we are making."
+          ) {
+            return true;
+          }
+
+          return false;
+        },
+        validate: validators.importBuildFileInRenamedDirectory
+      },
+      {
+        type: "input",
+        name: "overwriteDirectoryContent",
+        message: `Enter the path of the build file. Please note that this will overwrite all the existing content in ${chalk.cyan(
+          "component-dist"
+        )}.`,
+        when: function(responses) {
+          if (
+            responses.renameOrOverwrite ===
+            "Overwrite the files in the existing component-dist directory."
+          ) {
+            return true;
+          }
+
+          return false;
+        },
+        validate: validators.overwriteDirectoryContent
       }
     ];
 

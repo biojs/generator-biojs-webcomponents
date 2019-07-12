@@ -111,7 +111,7 @@ validators.importBuildFileFromNPM = async function(props) {
       .then(() => {
         return true;
       })
-      .catch(async err => {
+      .catch(err => {
         if (err.code === 1) {
           return chalk.red(
             `Sorry, there already seems to be a directory with the same name ${chalk.cyan(
@@ -145,14 +145,14 @@ validators.importBuildFileFromNPM = async function(props) {
 
 validators.copyBuildFileFromNPM = async props => {
   if (props) {
-    var res = executeCommand(
+    var res = await executeCommand(
       "cd component-dist && curl -O " + props,
       "copyBuildFileFromNPM"
     )
       .then(() => {
         return true;
       })
-      .catch(async err => {
+      .catch(err => {
         if (err.code === 3 || err.code === 23) {
           return chalk.red(
             "The URL is malformed. Please ensure the URL is in correct format."
@@ -180,21 +180,21 @@ validators.importBuildFileLocally = async props => {
       return true;
     }
 
-    var res = executeCommand(
+    var res = await executeCommand(
       "mkdir component-dist && cp " + props + " component-dist",
       "importBuildFileLocally"
     )
       .then(() => {
         return true;
       })
-      .catch(async err => {
+      .catch(err => {
         if (err.code === 1) {
           return chalk.red(
             `Oops! We encountered an error. This can happen due to one of the following reasons - \n\n1) The path of build file entered is incorrect. \n2) There's already a directory named ${chalk.cyan(
               "component-dist"
             )}, in this case please input ${chalk.cyan(
               "skip"
-            )} to paste the build file in your existing directory.\n\nPlease see below for the exact error description - \n${chalk.yellow(
+            )} to rename the new directory or overwrite files in the existing one.\n\nPlease see below for the exact error description - \n${chalk.yellow(
               err
             )}`
           );
@@ -215,21 +215,60 @@ validators.importBuildFileLocally = async props => {
   return chalk.red("This is a mandatory field, please answer.");
 };
 
-validators.copyBuildFileLocally = async props => {
+validators.renameDirectory = async props => {
   if (props) {
-    var res = executeCommand(
-      "cp " + props + " component-dist",
-      "copyBuildFileLocally"
-    )
-      .then(() => {
-        return true;
-      })
-      .catch(async err => {
+    var res = await executeCommand("mkdir " + props)
+      .then(() => true)
+      .catch(err => {
         return chalk.red(
           "Oops! We encountered an error, please see the log below for more details.\n" +
             err
         );
-      }); // Import the build file in component-dist directory locally from computer
+      });
+    return res;
+    /**
+     * Returns true if command execution is successful and proceeds to commonPrompts
+     * returns and logs the error if execution fails
+     */
+  }
+
+  return chalk.red("This is a mandatory field, please answer.");
+};
+
+validators.importBuildFileInRenamedDirectory = async (props, answers) => {
+  if (props) {
+    var res = await executeCommand(
+      "cp " + props + " " + answers.renameDirectory
+    )
+      .then(() => true)
+      .catch(err => {
+        return chalk.red(
+          "Oops! We encountered an error, please see the log below for more details.\n" +
+            err
+        );
+      });
+    return res;
+    /**
+     * Returns true if command execution is successful and proceeds to commonPrompts
+     * returns and logs the error if execution fails
+     */
+  }
+
+  return chalk.red("This is a mandatory field, please answer.");
+};
+
+validators.overwriteDirectoryContent = async props => {
+  if (props) {
+    var res = await executeCommand(
+      "rm -rf component-dist/* && cp " + props + " component-dist"
+    )
+      .then(() => true)
+      .catch(err => {
+        return chalk.red(
+          "Oops! We encountered an error, please see the log below for more details.\n" +
+            err
+        );
+      });
     return res;
     /**
      * Returns true if command execution is successful and proceeds to commonPrompts
