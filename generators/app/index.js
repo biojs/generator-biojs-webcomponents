@@ -43,10 +43,57 @@ module.exports = class extends Generator {
         message:
           "We need the build file (generally index.js, main.js or componentName.js) for this, import it using one of the options -",
         choices: [
-          "Tell us the path of the file on your local machine and we will import it in the project.",
-          "Tell us the npm package name, version, etc. and we will import it."
+          "Install component from npm package (Recommended - fastest way)",
+          "Tell us the path of the build file on your local machine and we will import it in the project.",
+          "Tell us the npm package name, version, build file URL and we will download the build file."
         ],
         default: 0
+      }
+    ];
+
+    const installNpmPackagePrompts = [
+      {
+        type: "input",
+        name: "packageNameToInstallComponent",
+        message: "Enter the package name (case sensitive).",
+        validate: validators.packageName
+      },
+      {
+        type: "confirm",
+        name: "confirmPackageNameToInstallComponent",
+        message: "Press enter if the package description shown is correct."
+      },
+      {
+        type: "rawlist",
+        name: "changeImportSourceFromNpmPackage",
+        message: "What do you want to do?",
+        choices: [
+          "Enter package name again to install component from npm package.",
+          "Import the file locally from your computer.",
+          "Enter package name, version, build file URL to download the build file."
+        ],
+        when: function(responses) {
+          if (responses.confirmPackageNameToInstallComponent) {
+            return false; // Don't show this prompt, if user says that package description is correct.
+          }
+
+          return true; // Show this prompt if user says that package description is not correct.
+        }
+      },
+      {
+        type: "input",
+        name: "checkVersionAndInstallComponent",
+        message:
+          "Great! We will import the latest version of the npm package, if you don't want this, enter the version.",
+        default: "latest",
+        when: function(responses) {
+          if (responses.confirmPackageNameToInstallComponent) {
+            return true; // Show this prompt if user says that package description is correct
+          }
+
+          return false; // Don't show this prompt if user says that package description is incorrect
+        },
+        validate: validators.checkVersionAndInstallComponent
       }
     ];
 
@@ -65,11 +112,12 @@ module.exports = class extends Generator {
       },
       {
         type: "rawlist",
-        name: "changeImportSource",
+        name: "changeImportSourceFromNpmBuildFile",
         message: "What do you want to do?",
         choices: [
-          "Enter package name again.",
-          "Import the file locally from your computer."
+          "Enter package name again to install component from npm package.",
+          "Import the file locally from your computer.",
+          "Enter package name, version, build file URL to download the build file."
         ],
         when: function(responses) {
           if (responses.confirmPackageName) {
@@ -190,18 +238,55 @@ module.exports = class extends Generator {
 
     /** Interacts with the user using prompts
      * Recursive so that user can go to a previous step and/or change method of importing file
-     * @param {string} repeatLocalOrNpmPrompts tells the generator which prompts should be shown again (localPrompts or npmPrompts)
+     * @param {string} repeatPrompts tells the generator which prompts should be shown again (installNpmPackagePrompts or localPrompts or npmPrompts)
      * @returns {Promise} to execute prompts and wait for there execution to finish
      */
-    const recursivePromptExecution = repeatLocalOrNpmPrompts => {
+    const recursivePromptExecution = repeatPrompts => {
       // If user changes the method of importing later, recursive execution
-      if (repeatLocalOrNpmPrompts) {
+      if (repeatPrompts) {
         // If user chooses to enter package name again when package description is incorrect
-        if (repeatLocalOrNpmPrompts === npmPrompts[2].choices[0]) {
+        if (
+          repeatPrompts === npmPrompts[2].choices[0] ||
+          repeatPrompts === installNpmPackagePrompts[2].choices[0]
+        ) {
+          return this.prompt(installNpmPackagePrompts).then(props => {
+            // If user chooses to go back and choose source of importing file again
+            if (props.changeImportSourceFromNpmPackage) {
+              return recursivePromptExecution(
+                props.changeImportSourceFromNpmPackage
+              ); // Call the function recursively
+            }
+
+            // If user chooses to install component from npm after starting over
+            return this.prompt(commonPrompts).then(props => {
+              this.props = props;
+              this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
+            });
+          });
+        }
+
+        if (
+          repeatPrompts === npmPrompts[2].choices[1] ||
+          repeatPrompts === installNpmPackagePrompts[2].choices[1]
+        ) {
+          return this.prompt(localPrompts).then(() => {
+            return this.prompt(commonPrompts).then(props => {
+              this.props = props;
+              this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
+            });
+          });
+        }
+
+        if (
+          repeatPrompts === npmPrompts[2].choices[2] ||
+          repeatPrompts === installNpmPackagePrompts[2].choices[2]
+        ) {
           return this.prompt(npmPrompts).then(props => {
             // If user chooses to go back and choose source of importing file again
-            if (props.changeImportSource) {
-              return recursivePromptExecution(props.changeImportSource); // Call the function recursively
+            if (props.changeImportSourceFromNpmBuildFile) {
+              return recursivePromptExecution(
+                props.changeImportSourceFromNpmBuildFile
+              ); // Call the function recursively
             }
 
             // If user chooses to import from npm after starting over
@@ -229,6 +314,23 @@ module.exports = class extends Generator {
           return this.prompt(upgradeComponentPrompts).then(props => {
             // If user chooses to import file locally from computer
             if (props.importFrom === upgradeComponentPrompts[0].choices[0]) {
+              return this.prompt(installNpmPackagePrompts).then(props => {
+                // If user chooses to go back and choose source of importing file again
+                if (props.changeImportSourceFromNpmPackage) {
+                  return recursivePromptExecution(
+                    props.changeImportSourceFromNpmPackage
+                  ); // Call the function recursively
+                }
+
+                // If user chooses to install component from npm initially
+                return this.prompt(commonPrompts).then(props => {
+                  this.props = props;
+                  this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
+                });
+              });
+            }
+
+            if (props.importFrom === upgradeComponentPrompts[0].choices[1]) {
               return this.prompt(localPrompts).then(() => {
                 return this.prompt(commonPrompts).then(props => {
                   this.props = props;
@@ -237,19 +339,23 @@ module.exports = class extends Generator {
               });
             }
 
-            // If user chooses to import file from npm
-            return this.prompt(npmPrompts).then(props => {
-              // If user chooses to go back and choose source of importing file again
-              if (props.changeImportSource) {
-                return recursivePromptExecution(props.changeImportSource); // Call the function recursively
-              }
+            if (props.importFrom === upgradeComponentPrompts[0].choices[2]) {
+              // If user chooses to import file from npm
+              return this.prompt(npmPrompts).then(props => {
+                // If user chooses to go back and choose source of importing file again
+                if (props.changeImportSourceFromNpmBuildFile) {
+                  return recursivePromptExecution(
+                    props.changeImportSourceFromNpmBuildFile
+                  ); // Call the function recursively
+                }
 
-              // If user chooses to import from npm initially
-              return this.prompt(commonPrompts).then(props => {
-                this.props = props;
-                this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
+                // If user chooses to import from npm initially
+                return this.prompt(commonPrompts).then(props => {
+                  this.props = props;
+                  this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
+                });
               });
-            });
+            }
           });
         }
 

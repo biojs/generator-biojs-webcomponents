@@ -61,6 +61,43 @@ validators.version = async function(props, answers) {
   ); // Warn user if no input is entered
 };
 
+validators.checkVersionAndInstallComponent = async function(props, answers) {
+  if (props) {
+    let command =
+      "npm view " + answers.packageNameToInstallComponent + "@" + props;
+    var res = await executeCommand(command, "version")
+      .then(async () => {
+        var res = await executeCommand(
+          "npm i " + answers.packageNameToInstallComponent + "@" + props
+        )
+          .then(() => true)
+          .catch(err => {
+            chalk.red(
+              "Oops! We encountered an error, please see the log below for more details.\n" +
+                err
+            );
+          });
+        return res;
+      })
+      .catch(() =>
+        chalk.red(
+          "Sorry, the version - " +
+            chalk.red.bold(props) +
+            " doesn't exist. Please enter again. Enter " +
+            chalk.cyan("latest") +
+            " if you want to import the latest version."
+        )
+      );
+    return res;
+  }
+
+  return chalk.red(
+    "This is a mandatory field, please answer. Enter " +
+      chalk.cyan("latest") +
+      " if you want to import the latest version."
+  ); // Warn user if no input is entered
+};
+
 validators.importBuildFileFromNPM = async function(props) {
   if (props) {
     if (props === "skip") {
@@ -253,7 +290,10 @@ function executeCommand(command, type) {
         // The command couldn't be executed
         spinner.stop();
         reject(err);
-      } else if (type === "version") {
+      } else if (
+        type === "version" ||
+        type === "checkVersionAndInstallComponent"
+      ) {
         // Command successfully executed
         if (stdout) {
           spinner.stop();
