@@ -464,6 +464,19 @@ module.exports = class extends Generator {
       bower: false,
       yarn: false
     });
+    this.log(
+      `While we install the dependencies, you can read the next steps - \n1. Write the code for your component, instructions are in ${chalk.yellow(
+        "src/index.js"
+      )}.\n2. Add css styles to your component in ${chalk.yellow(
+        "src/style"
+      )}.less.\n3. Run ${chalk.yellow(
+        "npm run less && npm run build"
+      )}.\n4. Use your component in ${chalk.yellow(
+        "examples/index.html"
+      )}.\n5. Test your component using ${chalk.yellow(
+        "npm start"
+      )}.\n\nYou can read the detailed instructions in TODO.md.\n`
+    );
   }
 };
 
