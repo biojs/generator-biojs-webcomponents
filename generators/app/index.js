@@ -167,28 +167,73 @@ module.exports = class extends Generator {
         validate: validators.importBuildFileFromNPM
       },
       {
-        type: "input",
-        name: "copyBuildFileFromNPM",
-        message: function(answers) {
-          return (
-            "This URL - " +
-            chalk.bold.yellow(
-              "https://www.jsdelivr.com/package/npm/" +
-                answers.packageName +
-                "?version=" +
-                answers.version
-            ) +
-            " contains the directory of the package, please find the build file (generally in the dist or build folder) and paste the link here, we will download it for you in the existing folder."
-          );
-        },
+        type: "list",
+        name: "renameOrOverwriteNpm",
+        message: "What do you want to do?",
+        choices: [
+          "Rename the component-dist directory we are making.",
+          "Overwrite the files in the existing component-dist directory."
+        ],
         when: function(responses) {
           if (responses.importBuildFileFromNPM === "skip") {
             return true; // Show this prompt if user says that package description is correct
           }
 
           return false; // Don't show this prompt if user says that package description is incorrect
+        }
+      },
+      {
+        type: "input",
+        name: "renameDirectoryNpm",
+        message: `Enter the name of the directory in which you want to import the build file, make sure it is not ${chalk.cyan(
+          "dist"
+        )} or ${chalk.cyan("component-dist")}.`,
+        when: function(responses) {
+          if (
+            responses.renameOrOverwriteNpm ===
+            "Rename the component-dist directory we are making."
+          ) {
+            return true;
+          }
+
+          return false;
         },
-        validate: validators.copyBuildFileFromNPM
+        validate: validators.renameDirectory
+      },
+      {
+        type: "input",
+        name: "importBuildFileInRenamedDirectoryNpm",
+        message:
+          "Great! Now enter the path of the build file to import it in the renamed directory.",
+        when: function(responses) {
+          if (
+            responses.renameOrOverwriteNpm ===
+            "Rename the component-dist directory we are making."
+          ) {
+            return true;
+          }
+
+          return false;
+        },
+        validate: validators.importBuildFileInRenamedDirectory
+      },
+      {
+        type: "input",
+        name: "overwriteDirectoryContentNpm",
+        message: `Enter the path of the build file. Please note that this will overwrite all the existing content in ${chalk.cyan(
+          "component-dist"
+        )}.`,
+        when: function(responses) {
+          if (
+            responses.renameOrOverwriteNpm ===
+            "Overwrite the files in the existing component-dist directory."
+          ) {
+            return true;
+          }
+
+          return false;
+        },
+        validate: validators.overwriteDirectoryContent
       }
     ];
 
@@ -202,7 +247,7 @@ module.exports = class extends Generator {
       },
       {
         type: "list",
-        name: "renameOrOverwrite",
+        name: "renameOrOverwriteLocal",
         message: "What do you want to do?",
         choices: [
           "Rename the component-dist directory we are making.",
@@ -218,13 +263,13 @@ module.exports = class extends Generator {
       },
       {
         type: "input",
-        name: "renameDirectory",
+        name: "renameDirectoryLocal",
         message: `Enter the name of the directory in which you want to import the build file, make sure it is not ${chalk.cyan(
           "dist"
         )} or ${chalk.cyan("component-dist")}.`,
         when: function(responses) {
           if (
-            responses.renameOrOverwrite ===
+            responses.renameOrOverwriteLocal ===
             "Rename the component-dist directory we are making."
           ) {
             return true;
@@ -241,7 +286,7 @@ module.exports = class extends Generator {
           "Great! Now enter the path of the build file to import it in the renamed directory.",
         when: function(responses) {
           if (
-            responses.renameOrOverwrite ===
+            responses.renameOrOverwriteLocal ===
             "Rename the component-dist directory we are making."
           ) {
             return true;
@@ -259,7 +304,7 @@ module.exports = class extends Generator {
         )}.`,
         when: function(responses) {
           if (
-            responses.renameOrOverwrite ===
+            responses.renameOrOverwriteLocal ===
             "Overwrite the files in the existing component-dist directory."
           ) {
             return true;

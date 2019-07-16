@@ -99,13 +99,16 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
   it("pastes the build file in renamed directory", async () => {
     await validators
       .importBuildFileInRenamedDirectory(path.join(__dirname, "../LICENSE"), {
-        renameDirectory: "test-directory"
+        renameDirectoryLocal: "test-directory"
       })
       .then(() => assert.file(["test-directory/LICENSE"]));
   });
   it("overwrites the directory content", async () => {
     await validators
-      .overwriteDirectoryContent(path.join(__dirname, "../README.md"))
+      .overwriteDirectoryContent(path.join(__dirname, "../README.md"), {
+        renameOrOverwriteLocal:
+          "Overwrite the files in the existing component-dist directory."
+      })
       .then(() => {
         assert.file(["component-dist/README.md"]);
       });
@@ -125,7 +128,7 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
 });
 
 describe("generator-biojs-webcomponents:app - Upgrade an existing component by importing build file using npm", () => {
-  it("works successfully if the package name and version entered is correct", async () => {
+  it("throws an error if version entered does not exist", async () => {
     assert.equal(
       await validators.version("fkdk", { packageName: "node" }),
       chalk.red(
@@ -139,16 +142,6 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
   });
   it("skips the current question if user enters skip", async () => {
     assert.equal(await validators.importBuildFileFromNPM("skip"), true);
-  });
-  it("downloads the file if URL entered is correct", async () => {
-    // This will work as the directory component-dist is already created above
-    await validators
-      .copyBuildFileFromNPM(
-        "https://cdn.jsdelivr.net/npm/ProtVista@2.0.13/build/protvista.min.gz.js"
-      )
-      .then(() => {
-        assert.file(["component-dist/protvista.min.gz.js"]);
-      });
   });
   it("throws an error if an npm package doesn't exist", async () => {
     assert.equal(
@@ -179,12 +172,6 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
   it("throws an error if downloadURL entered is empty", async () => {
     assert.equal(
       await validators.importBuildFileFromNPM(""),
-      chalk.red("This is a mandatory field, please answer.")
-    );
-  });
-  it("throws an error if downloadURL for build file to copied entered is empty", async () => {
-    assert.equal(
-      await validators.copyBuildFileFromNPM(""),
       chalk.red("This is a mandatory field, please answer.")
     );
   });

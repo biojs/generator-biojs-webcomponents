@@ -143,37 +143,6 @@ validators.importBuildFileFromNPM = async function(props) {
   return chalk.red("This is a mandatory field, please answer.");
 };
 
-validators.copyBuildFileFromNPM = async props => {
-  if (props) {
-    var res = await executeCommand(
-      "cd component-dist && curl -O " + props,
-      "copyBuildFileFromNPM"
-    )
-      .then(() => {
-        return true;
-      })
-      .catch(err => {
-        if (err.code === 3 || err.code === 23) {
-          return chalk.red(
-            "The URL is malformed. Please ensure the URL is in correct format."
-          );
-        }
-
-        return chalk.red(
-          "Oops! We encountered an error, please see the log below for more details.\n" +
-            err
-        );
-      }); // Import the build file in component-dist directory locally from computer
-    return res;
-    /**
-     * Returns true if command execution is successful and proceeds to commonPrompts
-     * returns and logs the error if execution fails
-     */
-  }
-
-  return chalk.red("This is a mandatory field, please answer.");
-};
-
 validators.importBuildFileLocally = async props => {
   if (props) {
     if (props === "skip") {
@@ -237,9 +206,14 @@ validators.renameDirectory = async props => {
 
 validators.importBuildFileInRenamedDirectory = async (props, answers) => {
   if (props) {
-    var res = await executeCommand(
-      "cp " + props + " " + answers.renameDirectory
-    )
+    let command;
+    if (answers.renameDirectoryLocal) {
+      command = "cp " + props + " " + answers.renameDirectoryLocal;
+    } else if (answers.renameDirectoryNpm) {
+      command = "cd " + answers.renameDirectoryNpm + " && curl -O " + props;
+    }
+
+    var res = await executeCommand(command)
       .then(() => true)
       .catch(err => {
         return chalk.red(
@@ -257,11 +231,17 @@ validators.importBuildFileInRenamedDirectory = async (props, answers) => {
   return chalk.red("This is a mandatory field, please answer.");
 };
 
-validators.overwriteDirectoryContent = async props => {
+validators.overwriteDirectoryContent = async (props, answers) => {
   if (props) {
-    var res = await executeCommand(
-      "rm -rf component-dist/* && cp " + props + " component-dist"
-    )
+    let command;
+    if (answers.renameOrOverwriteLocal) {
+      command = "rm -rf component-dist/* && cp " + props + " component-dist";
+    } else if (answers.renameOrOverwriteNpm) {
+      command =
+        "rm -rf component-dist/* && cd component-dist && curl -O " + props;
+    }
+
+    var res = await executeCommand(command)
       .then(() => true)
       .catch(err => {
         return chalk.red(
