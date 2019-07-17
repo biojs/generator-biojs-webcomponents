@@ -116,9 +116,9 @@ validators.importBuildFileFromNPM = async function(props) {
           return chalk.red(
             `Sorry, there already seems to be a directory with the same name ${chalk.cyan(
               "(component-dist)"
-            )}, please change it's name or move it.\n   If you want to just copy this file into that directory, enter ${chalk.cyan(
+            )}, please input ${chalk.cyan(
               "skip"
-            )}.\n`
+            )} to rename the directory in which build file will be imported or overwrite the contents of the existing directory.\n`
           );
         }
 
