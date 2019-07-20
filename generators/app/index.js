@@ -378,7 +378,8 @@ module.exports = class extends Generator {
       this.destinationPath("examples/index.html"),
       {
         title: this.props.toolNameHuman,
-        toolNameComputer: this.props.toolNameComputer
+        toolNameComputer: this.props.toolNameComputer,
+        toolNameCamel: this.props.toolNameCamel
       }
     );
     this.fs.copyTpl(
