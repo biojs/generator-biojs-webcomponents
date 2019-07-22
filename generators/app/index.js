@@ -204,7 +204,7 @@ module.exports = class extends Generator {
         type: "input",
         name: "importBuildFileInRenamedDirectoryNpm",
         message:
-          "Great! Now enter the path of the build file to import it in the renamed directory.",
+          "Great! Now enter the URL of the build file to import it in the renamed directory.",
         when: function(responses) {
           if (
             responses.renameOrOverwriteNpm ===
@@ -220,7 +220,7 @@ module.exports = class extends Generator {
       {
         type: "input",
         name: "overwriteDirectoryContentNpm",
-        message: `Enter the path of the build file. Please note that this will overwrite all the existing content in ${chalk.cyan(
+        message: `Enter the URL of the build file. Please note that this will overwrite all the existing content in ${chalk.cyan(
           "component-dist"
         )}.`,
         when: function(responses) {
