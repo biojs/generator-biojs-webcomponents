@@ -5,6 +5,15 @@ const yosay = require("yosay");
 const validators = require("./validator");
 
 module.exports = class extends Generator {
+  // Note: arguments and options should be defined in the constructor.
+  constructor(args, opts) {
+    super(args, opts);
+    this.argument("projectDirectory", { type: String, required: false });
+    if (!this.options.projectDirectory) {
+      this.options.projectDirectory = "web-component";
+    }
+  }
+
   initializing() {
     this.composeWith(require.resolve("generator-license"), {
       defaultLicense: "MIT" // (optional) Select a default license
@@ -23,6 +32,12 @@ module.exports = class extends Generator {
 
     // First prompt
     const initialPrompts = [
+      {
+        type: "input",
+        name: "start",
+        message: "Press any key to get going!",
+        validate: () => validators.storeArg(this.options.projectDirectory)
+      },
       {
         type: "list",
         name: "upgradeOrMake",
@@ -289,7 +304,7 @@ module.exports = class extends Generator {
       return this.prompt(initialPrompts).then(props => {
         // To access props later use this.props.someAnswer;
         // If user chooses to upgrade an existing component
-        if (props.upgradeOrMake === initialPrompts[0].choices[0]) {
+        if (props.upgradeOrMake === initialPrompts[1].choices[0]) {
           return this.prompt(upgradeComponentPrompts).then(props => {
             // If user chooses to import file locally from computer
             if (props.importFrom === upgradeComponentPrompts[0].choices[0]) {
@@ -339,7 +354,7 @@ module.exports = class extends Generator {
         }
 
         // If user chooses to make a new component
-        if (props.upgradeOrMake === initialPrompts[0].choices[1]) {
+        if (props.upgradeOrMake === initialPrompts[1].choices[1]) {
           return this.prompt(commonPrompts).then(props => {
             this.props = props;
             this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
@@ -352,6 +367,7 @@ module.exports = class extends Generator {
   }
 
   writing() {
+    this.destinationRoot(`./${this.options.projectDirectory}`);
     this.fs.copyTpl(
       this.templatePath("examples/index.html"),
       this.destinationPath("examples/index.html"),
@@ -436,6 +452,7 @@ module.exports = class extends Generator {
       this.templatePath("img/favicon.png"),
       this.destinationPath("img/favicon.png")
     );
+    this.destinationRoot("./");
   }
 
   install() {

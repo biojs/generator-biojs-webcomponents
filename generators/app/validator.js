@@ -3,7 +3,23 @@ const chalk = require("chalk");
 const { exec } = require("child_process");
 const ora = require("ora");
 const validators = {};
+
 let buildDirectory;
+let projectDirectory;
+
+validators.storeArg = async function(props) {
+  projectDirectory = props;
+  var res = await executeCommand("mkdir " + projectDirectory)
+    .then(() => true)
+    .catch(err => {
+      return chalk.red(
+        "Oops! We encountered an error, please see the log below for more details.\n" +
+          err
+      );
+    });
+  return res;
+};
+
 validators.packageName = async function(props) {
   if (props) {
     let command = "npm view " + props;
@@ -137,7 +153,7 @@ validators.directoryName = async props => {
 validators.importBuildFileFromNPM = async function(props) {
   if (props) {
     var res = await executeCommand(
-      "cd " + buildDirectory + " && curl -O " + props,
+      "cd " + projectDirectory + "/" + buildDirectory + " && curl -O " + props,
       "importBuildFileFromNPM"
     )
       .then(() => {
@@ -169,7 +185,7 @@ validators.importBuildFileFromNPM = async function(props) {
 validators.importBuildFileLocally = async props => {
   if (props) {
     var res = await executeCommand(
-      "cp " + props + " " + buildDirectory,
+      "cp " + props + " " + projectDirectory + "/" + buildDirectory,
       "importBuildFileLocally"
     )
       .then(() => {
@@ -236,6 +252,14 @@ function executeCommand(command, type) {
     spinner: "weather"
   });
   spinner.start();
+  if (type === "projectDirectory") {
+    if (command === "." || command.trim() === "") {
+      command = "mkdir webcomponent && cd webcomponent";
+    } else {
+      command = "mkdir " + command + " && cd " + command;
+    }
+  }
+
   return new Promise((resolve, reject) => {
     exec(command, (err, stdout) => {
       if (err) {

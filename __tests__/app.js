@@ -85,13 +85,15 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
       .then(() => assert.file(["component-dist"]));
   });
   it("imports the build file", async () => {
-    await validators
-      .importBuildFileLocally(
-        path.join(__dirname, "../generators/app/validator.js")
-      )
-      .then(() => {
-        assert.file(["component-dist/validator.js"]);
-      });
+    await validators.storeArg("web-component").then(async () => {
+      await validators
+        .importBuildFileLocally(
+          path.join(__dirname, "../generators/app/validator.js")
+        )
+        .then(() => {
+          assert.file(["web-component/component-dist/validator.js"]);
+        });
+    });
   });
   it("throws an error if user enters an empty string as path of build file", async () => {
     assert.equal(
