@@ -9,6 +9,10 @@ let projectDirectory;
 
 validators.storeArg = async function(props) {
   projectDirectory = props;
+  if (projectDirectory.trim() === ".") {
+    return true;
+  }
+
   var res = await executeCommand("mkdir " + projectDirectory)
     .then(() => true)
     .catch(err => {
@@ -252,14 +256,6 @@ function executeCommand(command, type) {
     spinner: "weather"
   });
   spinner.start();
-  if (type === "projectDirectory") {
-    if (command === "." || command.trim() === "") {
-      command = "mkdir webcomponent && cd webcomponent";
-    } else {
-      command = "mkdir " + command + " && cd " + command;
-    }
-  }
-
   return new Promise((resolve, reject) => {
     exec(command, (err, stdout) => {
       if (err) {
