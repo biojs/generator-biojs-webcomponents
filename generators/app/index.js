@@ -35,7 +35,7 @@ module.exports = class extends Generator {
       {
         type: "input",
         name: "start",
-        message: "Press any key to get going!",
+        message: "Press Enter key to get going!",
         validate: () => validators.storeArg(this.options.projectDirectory)
       },
       {
