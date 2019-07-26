@@ -3,7 +3,7 @@ const chalk = require("chalk");
 const { exec } = require("child_process");
 const ora = require("ora");
 const validators = {};
-
+let buildDirectory;
 validators.packageName = async function(props) {
   if (props) {
     let command = "npm view " + props;
@@ -21,8 +21,9 @@ validators.packageName = async function(props) {
         }
 
         return chalk.red(
-          "Oops! We encountered an error, please see the log below for more details.\n" +
+          `Oops! We encountered an error. Please see below for the more details - \n${chalk.yellow(
             err
+          )}`
         );
       });
     return res;
@@ -45,7 +46,7 @@ validators.version = async function(props, answers) {
       .catch(() =>
         chalk.red(
           "Sorry, the version - " +
-            chalk.red.bold(props) +
+            chalk.yellow(props) +
             " doesn't exist. Please enter again. Enter " +
             chalk.cyan("latest") +
             " if you want to import the latest version."
@@ -68,13 +69,15 @@ validators.checkVersionAndInstallComponent = async function(props, answers) {
     var res = await executeCommand(command, "version")
       .then(async () => {
         var res = await executeCommand(
-          "npm i " + answers.packageNameToInstallComponent + "@" + props
+          "npm i " + answers.packageNameToInstallComponent + "@" + props,
+          "checkVersionAndInstallComponent"
         )
           .then(() => true)
           .catch(err => {
-            chalk.red(
-              "Oops! We encountered an error, please see the log below for more details.\n" +
+            return chalk.red(
+              `Oops! We encountered an error. Please see below for the more details - \n${chalk.yellow(
                 err
+              )}`
             );
           });
         return res;
@@ -82,7 +85,7 @@ validators.checkVersionAndInstallComponent = async function(props, answers) {
       .catch(() =>
         chalk.red(
           "Sorry, the version - " +
-            chalk.red.bold(props) +
+            chalk.yellow(props) +
             " doesn't exist. Please enter again. Enter " +
             chalk.cyan("latest") +
             " if you want to import the latest version."
@@ -98,30 +101,49 @@ validators.checkVersionAndInstallComponent = async function(props, answers) {
   ); // Warn user if no input is entered
 };
 
+validators.directoryName = async props => {
+  var res;
+  if (props.trim() === "o") {
+    res = await executeCommand(`rm -rf ${buildDirectory}/*`)
+      .then(() => true)
+      .catch(err => {
+        return chalk.red(
+          `Oops! We encountered an error. Please see below for the more details - \n${chalk.yellow(
+            err
+          )}`
+        );
+      });
+    return res;
+  }
+
+  if (props) {
+    buildDirectory = props;
+    res = await executeCommand("mkdir " + props)
+      .then(() => true)
+      .catch(err => {
+        return chalk.red(
+          "Uh oh! There already exists a directory with the same name. Enter a new name again or enter " +
+            chalk.cyan("o") +
+            " if you want to overwrite the contents of this directory and then import the build file. please see the log below for more details.\n" +
+            chalk.yellow(err)
+        );
+      });
+    return res;
+  }
+
+  return chalk.red("This is a mandatory field, please answer.");
+};
+
 validators.importBuildFileFromNPM = async function(props) {
   if (props) {
-    if (props === "skip") {
-      return true;
-    }
-
     var res = await executeCommand(
-      "mkdir component-dist && cd component-dist && curl -O " + props,
+      "cd " + buildDirectory + " && curl -O " + props,
       "importBuildFileFromNPM"
     )
       .then(() => {
         return true;
       })
       .catch(err => {
-        if (err.code === 1) {
-          return chalk.red(
-            `Sorry, there already seems to be a directory with the same name ${chalk.cyan(
-              "(component-dist)"
-            )}, please input ${chalk.cyan(
-              "skip"
-            )} to rename the directory in which build file will be imported or overwrite the contents of the existing directory.\n`
-          );
-        }
-
         if (err.code === 3 || err.code === 23) {
           return chalk.red(
             "The URL is malformed. Please ensure the URL is in correct format."
@@ -129,8 +151,9 @@ validators.importBuildFileFromNPM = async function(props) {
         }
 
         return chalk.red(
-          "Oops! We encountered an error, please see the log below for more details.\n" +
+          `Oops! We encountered an error. Please see below for the more details - \n${chalk.yellow(
             err
+          )}`
         );
       }); // Import the build file in component-dist directory from npm
     return res;
@@ -145,110 +168,20 @@ validators.importBuildFileFromNPM = async function(props) {
 
 validators.importBuildFileLocally = async props => {
   if (props) {
-    if (props === "skip") {
-      return true;
-    }
-
     var res = await executeCommand(
-      "mkdir component-dist && cp " + props + " component-dist",
+      "cp " + props + " " + buildDirectory,
       "importBuildFileLocally"
     )
       .then(() => {
         return true;
       })
       .catch(err => {
-        if (err.code === 1) {
-          return chalk.red(
-            `Oops! We encountered an error. This can happen due to one of the following reasons - \n\n1) The path of build file entered is incorrect. \n2) There's already a directory named ${chalk.cyan(
-              "component-dist"
-            )}, in this case please input ${chalk.cyan(
-              "skip"
-            )} to rename the new directory or overwrite files in the existing one.\n\nPlease see below for the exact error description - \n${chalk.yellow(
-              err
-            )}`
-          );
-        }
-
         return chalk.red(
-          "Oops! We encountered an error, please see the log below for more details.\n" +
+          `Oops! We encountered an error. Please see below for the more details - \n${chalk.yellow(
             err
+          )}`
         );
       }); // Import the build file in component-dist directory locally from computer
-    return res;
-    /**
-     * Returns true if command execution is successful and proceeds to commonPrompts
-     * returns and logs the error if execution fails
-     */
-  }
-
-  return chalk.red("This is a mandatory field, please answer.");
-};
-
-validators.renameDirectory = async props => {
-  if (props) {
-    var res = await executeCommand("mkdir " + props)
-      .then(() => true)
-      .catch(err => {
-        return chalk.red(
-          "Oops! We encountered an error, please see the log below for more details.\n" +
-            err
-        );
-      });
-    return res;
-    /**
-     * Returns true if command execution is successful and proceeds to commonPrompts
-     * returns and logs the error if execution fails
-     */
-  }
-
-  return chalk.red("This is a mandatory field, please answer.");
-};
-
-validators.importBuildFileInRenamedDirectory = async (props, answers) => {
-  if (props) {
-    let command;
-    if (answers.renameDirectoryLocal) {
-      command = "cp " + props + " " + answers.renameDirectoryLocal;
-    } else if (answers.renameDirectoryNpm) {
-      command = "cd " + answers.renameDirectoryNpm + " && curl -O " + props;
-    }
-
-    var res = await executeCommand(command)
-      .then(() => true)
-      .catch(err => {
-        return chalk.red(
-          "Oops! We encountered an error, please see the log below for more details.\n" +
-            err
-        );
-      });
-    return res;
-    /**
-     * Returns true if command execution is successful and proceeds to commonPrompts
-     * returns and logs the error if execution fails
-     */
-  }
-
-  return chalk.red("This is a mandatory field, please answer.");
-};
-
-validators.overwriteDirectoryContent = async (props, answers) => {
-  if (props) {
-    let command;
-    if (answers.renameOrOverwriteLocal) {
-      command = "rm -rf component-dist/* && cp " + props + " component-dist";
-    } else if (answers.renameOrOverwriteNpm) {
-      command =
-        "rm -rf component-dist/* && cd component-dist && curl -O " + props;
-    }
-
-    var res = await executeCommand(command)
-      .then(() => true)
-      .catch(err => {
-        return chalk.red(
-          "Oops! We encountered an error, please see the log below for more details.\n" +
-            err
-        );
-      });
     return res;
     /**
      * Returns true if command execution is successful and proceeds to commonPrompts
@@ -319,7 +252,6 @@ function executeCommand(command, type) {
           resolve(true);
         } else {
           spinner.stop();
-          let err = "Sorry, that version does not exist!";
           reject(err);
         }
       } else if (stdout) {

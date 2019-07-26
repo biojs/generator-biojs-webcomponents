@@ -79,6 +79,11 @@ describe("generator-biojs-webcomponents:app - Make a new Web Component", () => {
 });
 
 describe("generator-biojs-webcomponents:app - Upgrade an existing component by importing build file locally", () => {
+  it("makes a new directory named - component-dist", async () => {
+    await validators
+      .directoryName("component-dist")
+      .then(() => assert.file(["component-dist"]));
+  });
   it("imports the build file", async () => {
     await validators
       .importBuildFileLocally(
@@ -88,40 +93,9 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
         assert.file(["component-dist/validator.js"]);
       });
   });
-  it("skips the current question if user enters skip", async () => {
-    assert.equal(await validators.importBuildFileLocally("skip"), true);
-  });
-  it("renames the directory in which build file will be imported", async () => {
-    await validators
-      .renameDirectory("test-directory")
-      .then(() => assert.file(["test-directory", "component-dist"]));
-  });
-  it("pastes the build file in renamed directory", async () => {
-    await validators
-      .importBuildFileInRenamedDirectory(path.join(__dirname, "../LICENSE"), {
-        renameDirectoryLocal: "test-directory"
-      })
-      .then(() => assert.file(["test-directory/LICENSE"]));
-  });
-  it("overwrites the directory content", async () => {
-    await validators
-      .overwriteDirectoryContent(path.join(__dirname, "../README.md"), {
-        renameOrOverwriteLocal:
-          "Overwrite the files in the existing component-dist directory."
-      })
-      .then(() => {
-        assert.file(["component-dist/README.md"]);
-      });
-  });
   it("throws an error if user enters an empty string as path of build file", async () => {
     assert.equal(
       await validators.importBuildFileFromNPM(""),
-      chalk.red("This is a mandatory field, please answer.")
-    );
-  });
-  it("throws an error if user enters an empty string as the name for directory in which build file will be imported", async () => {
-    assert.equal(
-      await validators.renameDirectory(""),
       chalk.red("This is a mandatory field, please answer.")
     );
   });
@@ -133,15 +107,12 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
       await validators.version("fkdk", { packageName: "node" }),
       chalk.red(
         "Sorry, the version - " +
-          chalk.red.bold("fkdk") +
+          chalk.yellow("fkdk") +
           " doesn't exist. Please enter again. Enter " +
           chalk.cyan("latest") +
           " if you want to import the latest version."
       )
     );
-  });
-  it("skips the current question if user enters skip", async () => {
-    assert.equal(await validators.importBuildFileFromNPM("skip"), true);
   });
   it("throws an error if an npm package doesn't exist", async () => {
     assert.equal(

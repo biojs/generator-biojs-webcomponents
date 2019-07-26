@@ -41,11 +41,11 @@ module.exports = class extends Generator {
         type: "rawlist",
         name: "importFrom",
         message:
-          "We need the build file (generally index.js, main.js or componentName.js) for this, import it using one of the options -",
+          "I need the build file (generally index.js, main.js or componentName.js) for this, import it using one of the options -",
         choices: [
           "Install component from npm package (Recommended - fastest way)",
-          "Tell us the path of the build file on your local machine and we will import it in the project.",
-          "Tell us the npm package name, version, build file URL and we will download the build file."
+          "Tell us the path of the build file on your local machine and I will import it in the project.",
+          "Tell us the npm package name, version, build file URL and I will download the build file."
         ],
         default: 0
       }
@@ -84,7 +84,7 @@ module.exports = class extends Generator {
         type: "input",
         name: "checkVersionAndInstallComponent",
         message:
-          "Great! We will import the latest version of the npm package, if you don't want this, enter the version.",
+          "Great! I will import the latest version of the npm package, if you don't want this, enter the version.",
         default: "latest",
         when: function(responses) {
           if (responses.confirmPackageNameToInstallComponent) {
@@ -131,7 +131,7 @@ module.exports = class extends Generator {
         type: "input",
         name: "version",
         message:
-          "Great! We will import the latest version of your file from the npm package, if you don't want this, enter the version.",
+          "Great! I will import the latest version of your file from the npm package, if you don't want this, enter the version.",
         default: "latest",
         when: function(responses) {
           if (responses.confirmPackageName) {
@@ -141,6 +141,14 @@ module.exports = class extends Generator {
           return false; // Don't show this prompt if user says that package description is incorrect
         },
         validate: validators.version
+      },
+      {
+        type: "input",
+        name: "directoryName",
+        message:
+          "The build file will be imported in a separate directory in the project's root. Enter the name of this directory or press Enter if you like to go with default.",
+        validate: validators.directoryName,
+        default: "component-dist"
       },
       {
         type: "input",
@@ -154,7 +162,7 @@ module.exports = class extends Generator {
                 "?version=" +
                 answers.version
             ) +
-            " contains the directory of the package, please find the build file (generally in the dist or build folder) and paste the link here, we will download it for you."
+            " contains the directory of the package, please find the build file (generally in the dist or build folder) and paste the link here, I will download it for you."
           );
         },
         when: function(responses) {
@@ -165,75 +173,6 @@ module.exports = class extends Generator {
           return false; // Don't show this prompt if user says that package description is incorrect
         },
         validate: validators.importBuildFileFromNPM
-      },
-      {
-        type: "list",
-        name: "renameOrOverwriteNpm",
-        message: "What do you want to do?",
-        choices: [
-          "Rename the component-dist directory we are making.",
-          "Overwrite the files in the existing component-dist directory."
-        ],
-        when: function(responses) {
-          if (responses.importBuildFileFromNPM === "skip") {
-            return true; // Show this prompt if user says that package description is correct
-          }
-
-          return false; // Don't show this prompt if user says that package description is incorrect
-        }
-      },
-      {
-        type: "input",
-        name: "renameDirectoryNpm",
-        message: `Enter the name of the directory in which you want to import the build file, make sure it is not ${chalk.cyan(
-          "dist"
-        )} or ${chalk.cyan("component-dist")}.`,
-        when: function(responses) {
-          if (
-            responses.renameOrOverwriteNpm ===
-            "Rename the component-dist directory we are making."
-          ) {
-            return true;
-          }
-
-          return false;
-        },
-        validate: validators.renameDirectory
-      },
-      {
-        type: "input",
-        name: "importBuildFileInRenamedDirectoryNpm",
-        message:
-          "Great! Now enter the URL of the build file to import it in the renamed directory.",
-        when: function(responses) {
-          if (
-            responses.renameOrOverwriteNpm ===
-            "Rename the component-dist directory we are making."
-          ) {
-            return true;
-          }
-
-          return false;
-        },
-        validate: validators.importBuildFileInRenamedDirectory
-      },
-      {
-        type: "input",
-        name: "overwriteDirectoryContentNpm",
-        message: `Enter the URL of the build file. Please note that this will overwrite all the existing content in ${chalk.cyan(
-          "component-dist"
-        )}.`,
-        when: function(responses) {
-          if (
-            responses.renameOrOverwriteNpm ===
-            "Overwrite the files in the existing component-dist directory."
-          ) {
-            return true;
-          }
-
-          return false;
-        },
-        validate: validators.overwriteDirectoryContent
       }
     ];
 
@@ -241,78 +180,18 @@ module.exports = class extends Generator {
     const localPrompts = [
       {
         type: "input",
+        name: "directoryName",
+        message: `The build file will be imported in a separate directory in the project's root. Enter the name of this directory or press Enter if you like to go with default ${chalk.cyan(
+          "component-dist"
+        )}.`,
+        validate: validators.directoryName,
+        default: "component-dist"
+      },
+      {
+        type: "input",
         name: "importBuildFileLocally",
         message: "Please enter the path of the build file.",
         validate: validators.importBuildFileLocally
-      },
-      {
-        type: "list",
-        name: "renameOrOverwriteLocal",
-        message: "What do you want to do?",
-        choices: [
-          "Rename the component-dist directory we are making.",
-          "Overwrite the files in the existing component-dist directory."
-        ],
-        when: function(responses) {
-          if (responses.importBuildFileLocally === "skip") {
-            return true; // Show this prompt if user says that package description is correct
-          }
-
-          return false; // Don't show this prompt if user says that package description is incorrect
-        }
-      },
-      {
-        type: "input",
-        name: "renameDirectoryLocal",
-        message: `Enter the name of the directory in which you want to import the build file, make sure it is not ${chalk.cyan(
-          "dist"
-        )} or ${chalk.cyan("component-dist")}.`,
-        when: function(responses) {
-          if (
-            responses.renameOrOverwriteLocal ===
-            "Rename the component-dist directory we are making."
-          ) {
-            return true;
-          }
-
-          return false;
-        },
-        validate: validators.renameDirectory
-      },
-      {
-        type: "input",
-        name: "importBuildFileInRenamedDirectory",
-        message:
-          "Great! Now enter the path of the build file to import it in the renamed directory.",
-        when: function(responses) {
-          if (
-            responses.renameOrOverwriteLocal ===
-            "Rename the component-dist directory we are making."
-          ) {
-            return true;
-          }
-
-          return false;
-        },
-        validate: validators.importBuildFileInRenamedDirectory
-      },
-      {
-        type: "input",
-        name: "overwriteDirectoryContent",
-        message: `Enter the path of the build file. Please note that this will overwrite all the existing content in ${chalk.cyan(
-          "component-dist"
-        )}.`,
-        when: function(responses) {
-          if (
-            responses.renameOrOverwriteLocal ===
-            "Overwrite the files in the existing component-dist directory."
-          ) {
-            return true;
-          }
-
-          return false;
-        },
-        validate: validators.overwriteDirectoryContent
       }
     ];
 
@@ -566,7 +445,7 @@ module.exports = class extends Generator {
       yarn: false
     });
     this.log(
-      `While we install the dependencies, you can read the next steps - \n1. Write the code for your component, instructions are in ${chalk.yellow(
+      `While I install the dependencies, you can read the next steps - \n1. Write the code for your component, instructions are in ${chalk.yellow(
         "src/index.js"
       )}.\n2. Add css styles to your component in ${chalk.yellow(
         "src/style"
