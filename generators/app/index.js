@@ -163,6 +163,13 @@ module.exports = class extends Generator {
         message:
           "The build file will be imported in a separate directory in the project's root. Enter the name of this directory or press Enter if you like to go with default.",
         validate: validators.directoryName,
+        when: function(responses) {
+          if (responses.confirmPackageName) {
+            return true; // Show this prompt if user says that package description is correct
+          }
+
+          return false; // Don't show this prompt if user says that package description is incorrect
+        },
         default: "component-dist"
       },
       {
@@ -251,7 +258,6 @@ module.exports = class extends Generator {
               ); // Call the function recursively
             }
 
-            // If user chooses to install component from npm after starting over
             return this.prompt(commonPrompts).then(props => {
               this.props = props;
               this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
@@ -283,30 +289,20 @@ module.exports = class extends Generator {
               ); // Call the function recursively
             }
 
-            // If user chooses to import from npm after starting over
             return this.prompt(commonPrompts).then(props => {
               this.props = props;
               this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
             });
           });
         }
-
-        // If user chooses to import file locally when package description is incorrect
-        return this.prompt(localPrompts).then(() => {
-          return this.prompt(commonPrompts).then(props => {
-            this.props = props;
-            this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
-          });
-        });
       }
 
       // Normal (initial) prompt execution
       return this.prompt(initialPrompts).then(props => {
-        // To access props later use this.props.someAnswer;
         // If user chooses to upgrade an existing component
         if (props.upgradeOrMake === initialPrompts[1].choices[0]) {
           return this.prompt(upgradeComponentPrompts).then(props => {
-            // If user chooses to import file locally from computer
+            // If user chooses to install component as npm package
             if (props.importFrom === upgradeComponentPrompts[0].choices[0]) {
               return this.prompt(installNpmPackagePrompts).then(props => {
                 // If user chooses to go back and choose source of importing file again
@@ -316,7 +312,6 @@ module.exports = class extends Generator {
                   ); // Call the function recursively
                 }
 
-                // If user chooses to install component from npm initially
                 return this.prompt(commonPrompts).then(props => {
                   this.props = props;
                   this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
@@ -324,6 +319,7 @@ module.exports = class extends Generator {
               });
             }
 
+            // If user chooses to import build file locally
             if (props.importFrom === upgradeComponentPrompts[0].choices[1]) {
               return this.prompt(localPrompts).then(() => {
                 return this.prompt(commonPrompts).then(props => {
@@ -333,17 +329,16 @@ module.exports = class extends Generator {
               });
             }
 
+            // If user chooses to import build file from npm package
             if (props.importFrom === upgradeComponentPrompts[0].choices[2]) {
-              // If user chooses to import file from npm
               return this.prompt(npmPrompts).then(props => {
-                // If user chooses to go back and choose source of importing file again
+                // If user chooses to go back and choose source of importing again
                 if (props.changeImportSourceFromNpmBuildFile) {
                   return recursivePromptExecution(
                     props.changeImportSourceFromNpmBuildFile
                   ); // Call the function recursively
                 }
 
-                // If user chooses to import from npm initially
                 return this.prompt(commonPrompts).then(props => {
                   this.props = props;
                   this.props.toolNameCamel = toCamelCase(props.toolNameHuman);

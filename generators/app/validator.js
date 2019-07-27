@@ -15,12 +15,22 @@ validators.storeArg = async function(props) {
 
   var res = await executeCommand("mkdir " + projectDirectory)
     .then(() => true)
-    .catch(err => {
-      return chalk.red(
-        `Oops! We encountered an error. Please see below for the more details - \n${chalk.yellow(
-          err
-        )}\nIf the directory whose path you entered already exists and you want that to be your project directory, cd into that directory and run ${chalk.cyan("`yo @biojs/biojs-webcomponents .`")}.`
-      );
+    .catch(async () => {
+      var tryAgain = await executeCommand(
+        "ls " + projectDirectory,
+        "checkDirExistence"
+      )
+        .then(() => true)
+        .catch(err => {
+          return chalk.red(
+            `Oops! We encountered an error. Please see below for the more details - \n${chalk.yellow(
+              err
+            )}\n.Try this - cd into that directory and run ${chalk.cyan(
+              "`yo @biojs/biojs-webcomponents .`"
+            )}.`
+          );
+        });
+      return tryAgain;
     });
   return res;
 };
@@ -90,7 +100,13 @@ validators.checkVersionAndInstallComponent = async function(props, answers) {
     var res = await executeCommand(command, "version")
       .then(async () => {
         var res = await executeCommand(
-          "cd " + projectDirectory + " && npm i " + answers.packageNameToInstallComponent + "@" + props + " --save-exact",
+          "cd " +
+            projectDirectory +
+            " && npm i " +
+            answers.packageNameToInstallComponent +
+            "@" +
+            props +
+            " --save-exact",
           "checkVersionAndInstallComponent"
         )
           .then(() => true)
@@ -125,7 +141,7 @@ validators.checkVersionAndInstallComponent = async function(props, answers) {
 validators.directoryName = async props => {
   var res;
   if (props.trim() === "o") {
-    res = await executeCommand(`rm -rf ${buildDirectory}/*`)
+    res = await executeCommand(`rm -rf ${projectDirectory}/${buildDirectory}/*`)
       .then(() => true)
       .catch(err => {
         return chalk.red(
@@ -139,13 +155,13 @@ validators.directoryName = async props => {
 
   if (props) {
     buildDirectory = props;
-    res = await executeCommand("mkdir " + props)
+    res = await executeCommand("mkdir " + projectDirectory + "/" + props)
       .then(() => true)
       .catch(err => {
         return chalk.red(
           "Uh oh! There already exists a directory with the same name. Enter a new name again or enter " +
             chalk.cyan("o") +
-            " if you want to overwrite the contents of this directory and then import the build file. please see the log below for more details.\n" +
+            " if you want to overwrite the contents of this directory and then import the build file. Please see the log below for more details.\n" +
             chalk.yellow(err)
         );
       });
@@ -275,6 +291,9 @@ function executeCommand(command, type) {
           spinner.stop();
           reject(err);
         }
+      } else if (type === "checkDirExistence") {
+          spinner.stop();
+          resolve(true);
       } else if (stdout) {
         process.stdout.write(`\n ${stdout} \n`); // If there is an output display it
         spinner.stop();
