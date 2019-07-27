@@ -292,8 +292,8 @@ function executeCommand(command, type) {
           reject(err);
         }
       } else if (type === "checkDirExistence") {
-          spinner.stop();
-          resolve(true);
+        spinner.stop();
+        resolve(true);
       } else if (stdout) {
         process.stdout.write(`\n ${stdout} \n`); // If there is an output display it
         spinner.stop();
