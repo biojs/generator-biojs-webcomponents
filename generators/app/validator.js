@@ -17,8 +17,9 @@ validators.storeArg = async function(props) {
     .then(() => true)
     .catch(err => {
       return chalk.red(
-        "Oops! We encountered an error, please see the log below for more details.\n" +
+        `Oops! We encountered an error. Please see below for the more details - \n${chalk.yellow(
           err
+        )}\nIf the directory whose path you entered already exists and you want that to be your project directory, cd into that directory and run ${chalk.cyan("`yo @biojs/biojs-webcomponents .`")}.`
       );
     });
   return res;
@@ -89,7 +90,7 @@ validators.checkVersionAndInstallComponent = async function(props, answers) {
     var res = await executeCommand(command, "version")
       .then(async () => {
         var res = await executeCommand(
-          "npm i " + answers.packageNameToInstallComponent + "@" + props,
+          "cd " + projectDirectory + " && npm i " + answers.packageNameToInstallComponent + "@" + props + " --save-exact",
           "checkVersionAndInstallComponent"
         )
           .then(() => true)
