@@ -58,7 +58,7 @@ module.exports = class extends Generator {
         message:
           "I need the build file (generally index.js, main.js or componentName.js) for this, import it using one of the options -",
         choices: [
-          "Install component from npm package (Recommended - fastest way)",
+          "Install component from npm package. (Recommended - fastest way)",
           "Tell us the path of the build file on your local machine and I will import it in the project.",
           "Tell us the npm package name, version, build file URL and I will download the build file."
         ],
@@ -83,7 +83,7 @@ module.exports = class extends Generator {
         name: "changeImportSourceFromNpmPackage",
         message: "What do you want to do?",
         choices: [
-          "Enter package name again to install component from npm package.",
+          "Enter package name again to install component from npm package. (Recommended - fastest way)",
           "Import the file locally from your computer.",
           "Enter package name, version, build file URL to download the build file."
         ],
@@ -130,7 +130,7 @@ module.exports = class extends Generator {
         name: "changeImportSourceFromNpmBuildFile",
         message: "What do you want to do?",
         choices: [
-          "Enter package name again to install component from npm package.",
+          "Enter package name again to install component from npm package. (Recommended - fastest way)",
           "Import the file locally from your computer.",
           "Enter package name, version, build file URL to download the build file."
         ],
@@ -203,9 +203,7 @@ module.exports = class extends Generator {
       {
         type: "input",
         name: "directoryName",
-        message: `The build file will be imported in a separate directory in the project's root. Enter the name of this directory or press Enter if you like to go with default ${chalk.cyan(
-          "component-dist"
-        )}.`,
+        message: "The build file will be imported in a separate directory in the project's root. Enter the name of this directory or press Enter if you like to go with default.",
         validate: validators.directoryName,
         default: "component-dist"
       },

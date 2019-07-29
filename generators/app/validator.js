@@ -140,7 +140,7 @@ validators.checkVersionAndInstallComponent = async function(props, answers) {
 
 validators.directoryName = async props => {
   var res;
-  if (props.trim() === "o") {
+  if (props.trim() === "o" || props.trim() === "O") {
     res = await executeCommand(`rm -rf ${projectDirectory}/${buildDirectory}/*`)
       .then(() => true)
       .catch(err => {
