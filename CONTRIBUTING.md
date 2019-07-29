@@ -11,37 +11,37 @@ Step 1: Clone the repository.
 
 a) Using HTTPS -
 
-```bash
+```
 git clone https://github.com/biojs/generator-biojs-webcomponents.git
 ```
 
 b) Using SSH -
 
-```bash
+```
 git clone git@github.com:biojs/generator-biojs-webcomponents.git
 ```
 
 Step 2: Go to generator's directory
 
-```bash
+```
 cd generator-biojs-webcomponents
 ```
 
 Step 3: Install yeoman
 
-```bash
+```
 npm install -g yo
 ```
 
 Step 4: Symlink the package
 
-```bash
+```
 npm link
 ```
 
 Step 5: Go out of the generator's directory. Run and test the generator locally.
 
-```bash
+```
 cd ..
 mkdir test-biojs-generator
 cd test-biojs-generator
