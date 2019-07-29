@@ -23,19 +23,32 @@ npm install -g yo
 
 Step 2a: Install [generator-biojs-webcomponents](https://www.npmjs.com/package/@biojs/generator-biojs-webcomponents).
 
-Note that below you can change my-new-component to the folder name of your choice. e.g. - your project name. 
-
 ```bash
-mkdir my-new-component 
-cd my-new-component
-npm install -g yo @biojs/generator-biojs-webcomponents
+npm install -g yo @biojs/biojs-webcomponents
 ```
 
 Step 2b: Generate your new project.
 
-```bash
-yo @biojs/biojs-webcomponents
 ```
+i) yo @biojs/biojs-webcomponents 
+```
+This will make a new directory named `web-component` in the current directory. The `web-component` directory will be your project directory. If there is already a directory with the name `web-component`, the generator will not make a new one, rather the existing one will be your project directory.
+
+   OR
+
+```
+ii) yo @biojs/biojs-webcomponents .
+```
+This will run the generator in the current directory.
+
+   OR 
+        
+```
+iii) yo @biojs/biojs-webcomponents /anyPath/yourNewProjectDir
+```
+This will run the generator in a new directory named `yourNewProjectDir` (you can choose any other name), the new directory will be created at the path you specified. If there is already a directory with the same name as you provided, the generator will not make a new one, rather the existing one will be your project directory.
+
+
 
 After running this, you will be asked some questions about the details of your project, after which the required dependencies will be automatically installed. You can read more about the whole workflow and the questions asked [here](#iii-workflow-and-questions).
 
