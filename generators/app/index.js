@@ -203,7 +203,8 @@ module.exports = class extends Generator {
       {
         type: "input",
         name: "directoryName",
-        message: "The build file will be imported in a separate directory in the project's root. Enter the name of this directory or press Enter if you like to go with default.",
+        message:
+          "The build file will be imported in a separate directory in the project's root. Enter the name of this directory or press Enter if you like to go with default.",
         validate: validators.directoryName,
         default: "component-dist"
       },
