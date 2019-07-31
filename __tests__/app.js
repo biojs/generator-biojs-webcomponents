@@ -63,15 +63,51 @@ describe("generator-biojs-webcomponents:app - Make a new Web Component", () => {
         ]);
       });
   });
-  it("throws an error if user enters an empty string as toolNameHuman", async () => {
+  it("passes if toolNameComputer is correctly formatted", async () => {
     assert.equal(
-      await validators.toolNameHuman(""),
-      chalk.red("This is a mandatory field, please answer.")
+      await validators.toolNameComputer("tool-name-computer-1"),
+      true
     );
+  });
+  it("passes if toolNameHuman is correctly formatted", async () => {
+    assert.equal(await validators.toolNameHuman("Tool Name Human"), true);
+  });
+  it("throws an error if toolNameComputer is wrongly formatted", async () => {
+    let err1 = await validators.toolNameComputer("-tool-name");
+    let err2 = await validators.toolNameComputer("tool-name-");
+    let err3 = await validators.toolNameComputer("toolName-computer");
+    let err4 = await validators.toolNameComputer("*toolname-comp");
+    let err5 = await validators.toolNameComputer("tool name");
+    if (
+      err1 !== true &&
+      err2 !== true &&
+      err3 !== true &&
+      err4 !== true &&
+      err5 !== true
+    ) {
+      assert.ok(true);
+    } else {
+      assert.fail();
+    }
+  });
+  it("throws an error if toolNameHuman is wrongly formatted", async () => {
+    let err1 = await validators.toolNameHuman("tool-name");
+    let err2 = await validators.toolNameHuman("toolname1");
+    if (err1 !== true && err2 !== true) {
+      assert.ok(true);
+    } else {
+      assert.fail();
+    }
   });
   it("throws an error if user enters an empty string as toolNameComputer", async () => {
     assert.equal(
       await validators.toolNameComputer(""),
+      chalk.red("This is a mandatory field, please answer.")
+    );
+  });
+  it("throws an error if user enters an empty string as toolNameHuman", async () => {
+    assert.equal(
+      await validators.toolNameHuman(""),
       chalk.red("This is a mandatory field, please answer.")
     );
   });
@@ -82,6 +118,10 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
     await validators.storeArg("test-component").then(() => {
       assert.file("test-component");
     });
+  });
+  it("does not throw an error if user enters path of a project directory which already exists", async () => {
+    let res = await validators.storeArg("test-component");
+    assert.equal(res, true);
   });
   it("makes a new directory named - component-dist", async () => {
     await validators
@@ -96,6 +136,18 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
       .then(() => {
         assert.file(["test-component/component-dist/validator.js"]);
       });
+  });
+  it("overwrites the directory content if user enters o or O", async () => {
+    await validators
+      .directoryName("o")
+      .then(() =>
+        assert.noFile(["test-component/component-dist/validator.js"])
+      );
+  });
+  it("makes a new directory if user enters a new name", async () => {
+    await validators.directoryName("new-build-dir").then(() => {
+      assert.file("test-component/new-build-dir");
+    });
   });
   it("throws an error if user enters an empty string as path of build file", async () => {
     assert.equal(

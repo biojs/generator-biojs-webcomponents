@@ -13,10 +13,10 @@ validators.storeArg = async function(props) {
     return true;
   }
 
-  var res = await executeCommand("mkdir " + projectDirectory)
+  let res = await executeCommand("mkdir " + projectDirectory)
     .then(() => true)
     .catch(async () => {
-      var tryAgain = await executeCommand(
+      let tryAgain = await executeCommand(
         "ls " + projectDirectory,
         "checkDirExistence"
       )
@@ -70,7 +70,7 @@ validators.packageName = async function(props) {
 validators.version = async function(props, answers) {
   if (props) {
     let command = "npm view " + answers.packageName + "@" + props;
-    var res = await executeCommand(command, "version")
+    let res = await executeCommand(command, "version")
       .then(() => {
         return true;
       })
@@ -97,9 +97,9 @@ validators.checkVersionAndInstallComponent = async function(props, answers) {
   if (props) {
     let command =
       "npm view " + answers.packageNameToInstallComponent + "@" + props;
-    var res = await executeCommand(command, "version")
+    let res = await executeCommand(command, "version")
       .then(async () => {
-        var res = await executeCommand(
+        let res = await executeCommand(
           "cd " +
             projectDirectory +
             " && npm i " +
@@ -139,7 +139,7 @@ validators.checkVersionAndInstallComponent = async function(props, answers) {
 };
 
 validators.directoryName = async props => {
-  var res;
+  let res;
   if (props.trim() === "o" || props.trim() === "O") {
     res = await executeCommand(`rm -rf ${projectDirectory}/${buildDirectory}/*`)
       .then(() => true)
@@ -173,7 +173,7 @@ validators.directoryName = async props => {
 
 validators.importBuildFileFromNPM = async function(props) {
   if (props) {
-    var res = await executeCommand(
+    let res = await executeCommand(
       "cd " + projectDirectory + "/" + buildDirectory + " && curl -O " + props,
       "importBuildFileFromNPM"
     )
@@ -205,7 +205,7 @@ validators.importBuildFileFromNPM = async function(props) {
 
 validators.importBuildFileLocally = async props => {
   if (props) {
-    var res = await executeCommand(
+    let res = await executeCommand(
       "cp " + props + " " + projectDirectory + "/" + buildDirectory,
       "importBuildFileLocally"
     )
