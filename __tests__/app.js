@@ -157,7 +157,26 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
   });
 });
 
+describe("generator-biojs-webcomponents:app - Upgrade an existing component by installing component from npm package", () => {
+  it("installs the latest component from its npm package if user enters a valid version", async () => {
+    let res = await validators.checkVersionAndInstallComponent("latest", {
+      packageNameToInstallComponent: "http-server"
+    });
+    assert.equal(res, true);
+  });
+});
+
 describe("generator-biojs-webcomponents:app - Upgrade an existing component by importing build file using npm", () => {
+  it("runs the generator in the directory passed in arguments", async () => {
+    await validators.storeArg("test-component").then(() => {
+      assert.file("test-component");
+    });
+  });
+  it("makes a new directory named - component-dist", async () => {
+    await validators
+      .directoryName("component-dist")
+      .then(() => assert.file(["test-component/component-dist"]));
+  });
   it("throws an error if version entered does not exist", async () => {
     assert.equal(
       await validators.version("fkdk", { packageName: "node" }),
@@ -169,6 +188,15 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
           " if you want to import the latest version."
       )
     );
+  });
+  it("downloads the URL of build file entered is correct", async () => {
+    await validators
+      .importBuildFileFromNPM(
+        "https://cdn.jsdelivr.net/npm/node@12.7.0/index.min.js"
+      )
+      .then(() => {
+        assert.file("test-component/component-dist/index.min.js");
+      });
   });
   it("throws an error if an npm package doesn't exist", async () => {
     assert.equal(
