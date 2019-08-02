@@ -128,7 +128,7 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
       .directoryName("component-dist")
       .then(() => assert.file(["test-component/component-dist"]));
   });
-  it("imports the build file", async () => {
+  it("imports the build file locally", async () => {
     await validators
       .importBuildFileLocally(
         path.join(__dirname, "../generators/app/validator.js")
@@ -159,8 +159,9 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
 
 describe("generator-biojs-webcomponents:app - Upgrade an existing component by installing component from npm package", () => {
   it("installs the latest component from its npm package if user enters a valid version", async () => {
+    jest.setTimeout(10000); // Increases timeout for this test
     let res = await validators.checkVersionAndInstallComponent("latest", {
-      packageNameToInstallComponent: "http-server"
+      packageNameToInstallComponent: "is-odd"
     });
     assert.equal(res, true);
   });
