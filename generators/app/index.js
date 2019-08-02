@@ -8,10 +8,14 @@ module.exports = class extends Generator {
   // Note: arguments and options should be defined in the constructor.
   constructor(args, opts) {
     super(args, opts);
-    this.argument("projectDirectory", { type: String, required: false });
-    if (!this.options.projectDirectory) {
-      this.options.projectDirectory = "web-component";
-    }
+    this.argument("projectDirectory", {
+      type: String,
+      required: false,
+      default: "web-component",
+      desc: `${chalk.blue(
+        "path of the project directory, if you enter the path of a directory which does not exist, the generator will make one for you, otherwise it will use the existing one."
+      )} Default directory: ${chalk.cyan("web-component")}`
+    });
   }
 
   initializing() {
