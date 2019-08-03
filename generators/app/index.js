@@ -237,6 +237,18 @@ module.exports = class extends Generator {
           'Thanks! Now, give me a human name for the project with only letters and NO special characters apart from the whitespace (space). e.g. "Genome Browser"',
         validate: validators.toolNameHuman,
         default: "BioJS component"
+      },
+      {
+        type: "input",
+        name: "description",
+        message:
+          "That's an amazing name. Now, describe your component in 2-3 lines."
+      },
+      {
+        type: "input",
+        name: "githubURL",
+        message:
+          "Almost done! Provide the GitHub URL of this component. (optional)"
       }
     ];
 
@@ -372,7 +384,9 @@ module.exports = class extends Generator {
       {
         title: this.props.toolNameHuman,
         toolNameComputer: this.props.toolNameComputer,
-        toolNameCamel: this.props.toolNameCamel
+        toolNameCamel: this.props.toolNameCamel,
+        githubURL: this.props.githubURL,
+        description: this.props.description
       }
     );
     this.fs.copyTpl(
@@ -380,7 +394,9 @@ module.exports = class extends Generator {
       this.destinationPath("index.html"),
       {
         title: this.props.toolNameHuman,
-        toolNameComputer: this.props.toolNameComputer
+        toolNameComputer: this.props.toolNameComputer,
+        githubURL: this.props.githubURL,
+        description: this.props.description
       }
     );
     this.fs.copyTpl(

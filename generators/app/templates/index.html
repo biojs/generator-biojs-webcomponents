@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title><%= title %> demo index</title>
+  <title><%= title %></title>
   <link rel="icon" href="img/favicon.png">
   <link rel="stylesheet" type="text/css" href="dist/style.css">
   <style>
@@ -17,26 +17,50 @@
     align-items: center;
     justify-content: center;
   }
+  #nav {
+    display: flex;
+    width: 100%;
+    height: 10vh;
+    justify-content: space-around;
+    align-items: center;
+    font-size: 20px;
+  }
+  #icon {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+  }
+  a {
+    color: #007e3a;
+    font-size: inherit;
+    text-decoration: none;
+  }
   </style>
 </head>
 
 <body class="demo">
-
-  <h1><%= title %> demo pages</h1>
-
-  <a href="examples/index.html">Visit the example demo page.</a>
-  <p> You can add links to more demos here if needed.</p>
-  <h2></h2>
-  <p></p>
+  <div id="nav">
+    <a href="https://biojs.net" target="_blank" style="display: flex;align-items:center;"><img src="img/favicon.png" id="icon">BioJS</a>
+    <a href="index.html"><%= title %></a>
+    <a href="examples/index.html">Visualize <%= title %></a>
+  </div>
+  <hr /><hr />
+  <h1><%= title %></h1>
+  <p><%= description %></p>
+  <p>See an example visualization of this component <a href="examples/index.html">here.</a></p>
+  <p>You can add links to more demos here if needed.</p>
+  <!-- Remove the next line if this component's code is not on GitHub -->
+  <p>Check out the code on <a href="<%= githubURL%>" target="_blank">GitHub.</a></p>
+  <hr /><hr />
   <h2>Learn more about BioJS</h2>
   <ul>
     <li>To learn more about creating BioJS components, visit
-    <a href="http://training.biojs.net">the BioJS training pages</a></li>
+    <a href="http://training.biojs.net" target="_blank">the BioJS training pages.</a></li>
     <li>View a
-      <a href="https://github.com/yochannah/biojs-webcomponent-prototype">
+      <a href="https://github.com/yochannah/biojs-webcomponent-prototype" target="_blank">
         demo biojs webcomponent example</a> you could emulate.</li>
     <li> To browse BioJS components, visit
-    <a href="http://biojs.net">the BioJS Registry</a></li>.
+    <a href="http://biojs.net" target="_blank">the BioJS Registry</a>.</li>
   </ul>
 
 
