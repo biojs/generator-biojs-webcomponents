@@ -481,9 +481,9 @@ module.exports = class extends Generator {
  * @return {aString}, but with spaces removed and camelCased.
  **/
 function toCamelCase(aString) {
-  var tokens = aString.split(" ");
+  let tokens = aString.split(" ");
 
-  var camelString = "";
+  let camelString = "";
   tokens.map(function(token, index) {
     if (token.trim() !== "") {
       // Remove extra space between the words
