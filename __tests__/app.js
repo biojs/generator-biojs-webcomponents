@@ -79,6 +79,11 @@ describe("generator-biojs-webcomponents:app - Make a new Web Component", () => {
 });
 
 describe("generator-biojs-webcomponents:app - Upgrade an existing component by importing build file locally", () => {
+  it("makes a new directory named - component-dist", async () => {
+    await validators
+      .directoryName("component-dist")
+      .then(() => assert.file(["component-dist"]));
+  });
   it("imports the build file", async () => {
     await validators
       .importBuildFileLocally(
@@ -88,56 +93,26 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
         assert.file(["component-dist/validator.js"]);
       });
   });
-  it("only pastes the build file", async () => {
-    // This will work as the directory component-dist already exists because of the above test
-    await validators
-      .copyBuildFileLocally(path.join(__dirname, "../LICENSE"))
-      .then(() => {
-        assert.file(["component-dist/LICENSE"]);
-      });
-  });
-  it("skips the current question if user enters skip", async () => {
-    assert.equal(await validators.importBuildFileLocally("skip"), true);
-  });
   it("throws an error if user enters an empty string as path of build file", async () => {
     assert.equal(
       await validators.importBuildFileFromNPM(""),
       chalk.red("This is a mandatory field, please answer.")
     );
   });
-  it("throws an error if user enters an empty string as path of build file to be copied", async () => {
-    assert.equal(
-      await validators.copyBuildFileLocally(""),
-      chalk.red("This is a mandatory field, please answer.")
-    );
-  });
 });
 
 describe("generator-biojs-webcomponents:app - Upgrade an existing component by importing build file using npm", () => {
-  it("works successfully if the package name and version entered is correct", async () => {
+  it("throws an error if version entered does not exist", async () => {
     assert.equal(
       await validators.version("fkdk", { packageName: "node" }),
       chalk.red(
         "Sorry, the version - " +
-          chalk.red.bold("fkdk") +
+          chalk.yellow("fkdk") +
           " doesn't exist. Please enter again. Enter " +
           chalk.cyan("latest") +
           " if you want to import the latest version."
       )
     );
-  });
-  it("skips the current question if user enters skip", async () => {
-    assert.equal(await validators.importBuildFileFromNPM("skip"), true);
-  });
-  it("downloads the file if URL entered is correct", async () => {
-    // This will work as the directory component-dist is already created above
-    await validators
-      .copyBuildFileFromNPM(
-        "https://cdn.jsdelivr.net/npm/ProtVista@2.0.13/build/protvista.min.gz.js"
-      )
-      .then(() => {
-        assert.file(["component-dist/protvista.min.gz.js"]);
-      });
   });
   it("throws an error if an npm package doesn't exist", async () => {
     assert.equal(
@@ -168,12 +143,6 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
   it("throws an error if downloadURL entered is empty", async () => {
     assert.equal(
       await validators.importBuildFileFromNPM(""),
-      chalk.red("This is a mandatory field, please answer.")
-    );
-  });
-  it("throws an error if downloadURL for build file to copied entered is empty", async () => {
-    assert.equal(
-      await validators.copyBuildFileFromNPM(""),
       chalk.red("This is a mandatory field, please answer.")
     );
   });
