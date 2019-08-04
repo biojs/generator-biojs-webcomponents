@@ -17,25 +17,38 @@ Note: If you need to manage multiple versions of node also consider [nvm](https:
 
 Step 1: Install [Yeoman](http://yeoman.io).
 
-```bash
+```
 npm install -g yo
 ```
 
 Step 2a: Install [generator-biojs-webcomponents](https://www.npmjs.com/package/@biojs/generator-biojs-webcomponents).
 
-Note that below you can change my-new-component to the folder name of your choice. e.g. - your project name. 
-
-```bash
-mkdir my-new-component 
-cd my-new-component
-npm install -g yo @biojs/generator-biojs-webcomponents
+```
+npm install -g yo @biojs/biojs-webcomponents
 ```
 
 Step 2b: Generate your new project.
 
-```bash
-yo @biojs/biojs-webcomponents
 ```
+i) yo @biojs/biojs-webcomponents 
+```
+This will make a **new directory** named `web-component` in the **current directory**. The `web-component` directory will be your **project directory**. If there is already a directory with the name `web-component`, the generator will not make a new one, rather **the existing one will be your project directory**.
+
+   OR
+
+```
+ii) yo @biojs/biojs-webcomponents .
+```
+This will run the generator in the **current directory**.
+
+   OR 
+        
+```
+iii) yo @biojs/biojs-webcomponents /anyPath/yourNewProjectDir
+```
+This will run the generator in a new directory named `yourNewProjectDir` (you can choose any other name), the new directory will be created at the **path you specified**. If there is already a directory with the same name as you provided, the generator will not make a new one, rather **the existing one will be your project directory**.
+
+
 
 After running this, you will be asked some questions about the details of your project, after which the required dependencies will be automatically installed. You can read more about the whole workflow and the questions asked [here](#iii-workflow-and-questions).
 
@@ -45,7 +58,7 @@ and `examples/index.html` to get started - there are instructions in the code.
 ## II. Description of your Project's Folder Structure
 Once you complete all the steps mentioned above you will have a project with a folder structure like this - 
 
-```bash
+```
 ├── dev
 │   └────── serve.js
 ├── examples
@@ -95,7 +108,9 @@ If you face any issue, feel free to contact us at [Gitter](https://gitter.im/bio
 
 After running ```yo @biojs/biojs-webcomponents``` in your terminal, you will be asked -
 
-```bash
+```
+? Press Enter key to get going!
+
 ? What do you want to do today?
 > Upgrade an existing component to a Web Component
   Make a new Web Component
@@ -107,86 +122,124 @@ Based on your choice, you will be asked different questions. Read more -
 
 A) Import the build file of your existing component into the project's directory. 
 
-1) You can import the build file from your local computer.
-2) If you do not have the build file in your computer, you can import it from your component's package on npm.
+1) Install the component from npm [**Recommended - Fastest way**]
+2) You can import the build file from your local computer.
+3) If you do not have the build file in your computer, you can import it from your component's package on npm.
 
-```bash
+```
 ? We need the build file (generally index.js, main.js or componentName.js) for this,
   import it using one of the options - 
-  1) Tell us the path of the file on your local machine and we will import it in the project.
-  2) Tell us the npm package name, version, etc. and we will import it.
+  1) Install component from npm package (Recommended - fastest way)
+  2) Tell us the path of the file on your local machine and we will import it in the project.
+  3) Tell us the npm package name, version, etc. and we will import it.
 ```
 
-Import from your local machine -
+B1) Install component from npm package -
 
-B) Enter the path of your build file.
+You have to enter the package name (case sensitive) of your component, the generator will show you the description of your package and ask whether the description shown is correct or not. 
 
-```bash
-Please enter the path of the build file.
 ```
-
-The generator will make a directory named ```component-dist``` in your component's directory. Your build file will be imported in this directory. If this directory (component-dist) already exists, you can enter ```skip``` and enter the path of the build file in the next question (given below).
-
-```bash
-Please enter the path of the build file, we will paste it into the existing directory.
-```
-
-Import from your compnent's package on npm - 
-
-C) You have to enter the package name (case sensitive) of your component, the generator will show you the description of your package and ask whether the description shown is correct or not. 
-
-```bash
 Enter the package name (case sensitive).
 Press enter if the package description shown is correct.
 ```
 
 If the description shown is incorrect, press ```N``` and you will go back to step A where you can choose to enter the package name again or import the file from local storage.
 
-```bash
+```
 ? What do you want to do? 
-  1) Enter package name again.
+  1) Enter package name again to install component from npm package. (Recommended - fastest way)
   2) Import the file locally from your computer.
+  3) Enter package name, version, build file URL to download the build file.
 ```
 
-If the description shown is correct, press ```Enter``` or ```Y```. You will be asked about the version of the package you want to import from.
+If the description shown is correct, press ```Enter``` or ```Y```. You will be asked about the version of the package you want to import from. You can press ```Enter``` if you want to import from the latest version or you can enter the version you need. If you enter a version which does not exist, the generator will ask for version again.
 
-```bash
+```
 Great! We will import the latest version of your file from the npm package, if you don't want this,
 enter the version.
 ```
 
-You can press ```Enter``` if you want to import from the latest version or you can enter the version you need. If the version exists, you will be shown a URL which will redirect you to your package's directory.
+Your component will be installed. Next, the questions in [this](#make-a-new-web-component) section will be asked.
 
-```bash
+B2) Import build file from your local storage -
+
+Firstly, the generator will ask you about the build directory - the build file will be imported in this directory which will be created in your project directory. You can press ```Enter``` if you want the default name - ```component-dist``` or enter a name of your choice.
+
+If a directory with the same name already exists in your project directory, you can either enter a new name for your directory or press ```o```/```O``` if you want to overwrite the content of existing directory.
+
+```
+The build file will be imported in a separate directory in the project's root.
+Enter the name of this directory or press Enter if you like to go with default.
+(component-dist)
+```
+
+Enter the path of your build file.
+
+```
+Please enter the path of the build file.
+```
+
+Your build file will be imported in the build directory. Next, the questions in [this](#make-a-new-web-component) section will be asked.
+
+B3) Import build file from your compnent's package on npm - 
+
+You have to enter the package name (case sensitive) of your component, the generator will show you the description of your package and ask whether the description shown is correct or not. 
+
+```
+Enter the package name (case sensitive).
+Press enter if the package description shown is correct.
+```
+
+If the description shown is incorrect, press ```N``` and you will go back to step A where you can choose to enter the package name again or import the file from local storage.
+
+```
+? What do you want to do? 
+  1) Enter package name again to install component from npm package. (Recommended - fastest way)
+  2) Import the file locally from your computer.
+  3) Enter package name, version, build file URL to download the build file.
+```
+
+If the description shown is correct, press ```Enter``` or ```Y```. You will be asked about the version of the package you want to import from. You can press ```Enter``` if you want to import from the latest version or you can enter the version you need. If you enter a version which does not exist, the generator will ask for version again.
+
+```
+Great! We will import the latest version of your file from the npm package,
+if you don't want this, enter the version.
+```
+
+Once you enter a valid version and press ```Enter```, the generator will ask you about the build directory - the build file will be imported in this directory which will be created in your project directory. You can press ```Enter``` if you want the default name - ```component-dist``` or enter a name of your choice.
+
+If a directory with the same name already exists in your project directory, you can either enter a new name for your directory or press ```o```/```O``` if you want to overwrite the content of existing directory.
+
+```
+The build file will be imported in a separate directory in the project's root.
+Enter the name of this directory or press Enter if you like to go with default.
+(component-dist)
+```
+
+Once you have your build directory ready, generator will show you a URL, which containts the component's directory. You can find the build file in the root folder or a separate folder named build, dist, etc. The build file is generally named index.js, package_name.js, index.min.js or package_name.min.js, etc. Copy the URL of the build file and paste it in the generator.
+
+```
 This URL - https://www.jsdelivr.com/package/npm/<your-package-name>?version=<your-package-version>
 contains the directory of the package, please find the build file (generally in the dist or build 
 folder) and paste the link here, we will download it for you. 
 ```
 
-After going to this URL, you can find the build file in the root folder or a separate folder named build or dist. The build file is generally named index.js, package_name.js, index.min.js or package_name.min.js. 
+The generator will download the build file in the build directory. Next, the questions in [this](#make-a-new-web-component) section will be asked.
 
-You have to copy the URL/link to the build file and enter it and the generator will download it for you in a directory named ```component-dist```. If this directory (component-dist) already exists then enter ```skip``` and enter the URL in the next question (given below).
-
-```bash
-This URL - https://www.jsdelivr.com/package/npm/<your-package-name>?version=<your-package-version>
-contains the directory of the package, please find the build file (generally in the dist or build
-folder) and paste the link here, we will download it for you in the existing folder. 
-```
-
-D) After successfully importing the build file, you will be asked the same questions (questions A and B in the next section) about your component as asked while [making a new one](#make-a-new-web-component).
+C) After successfully installing the component/importing the build file, you will be asked the same questions (questions A and B in the next section) about your component as asked while [making a new one](#make-a-new-web-component).
 
 ### Make a new Web Component
 
 A) Enter computer package name. This should contain only small alphabets and hyphen ( - ) between the words. You can't use CAPITAL letters, number, space, any other special character(s) and hyphen at beginning or end.
 
-```bash
+```
 Computer package name? This is a computer name with NO capital letters or special 
 characters apart from the hyphen ( - ) .
 ```
 
 B) Enter human name for the project. This can only contain letters (small and capital) and spaces, no other special characters or numbers.
 
-```bash
+```
 Thanks! Now, give me a human name for the project with only letters and NO special
 characters apart from the whitespace (space). e.g. \"Genome Browser\"
 ```
