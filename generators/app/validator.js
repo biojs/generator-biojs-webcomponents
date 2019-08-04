@@ -3,7 +3,38 @@ const chalk = require("chalk");
 const { exec } = require("child_process");
 const ora = require("ora");
 const validators = {};
+
 let buildDirectory;
+let projectDirectory;
+
+validators.storeArg = async function(props) {
+  projectDirectory = props;
+  if (projectDirectory.trim() === ".") {
+    return true;
+  }
+
+  var res = await executeCommand("mkdir " + projectDirectory)
+    .then(() => true)
+    .catch(async () => {
+      var tryAgain = await executeCommand(
+        "ls " + projectDirectory,
+        "checkDirExistence"
+      )
+        .then(() => true)
+        .catch(err => {
+          return chalk.red(
+            `Oops! We encountered an error. Please see below for the more details - \n${chalk.yellow(
+              err
+            )}\n.Try this - cd into that directory and run ${chalk.cyan(
+              "`yo @biojs/biojs-webcomponents .`"
+            )}.`
+          );
+        });
+      return tryAgain;
+    });
+  return res;
+};
+
 validators.packageName = async function(props) {
   if (props) {
     let command = "npm view " + props;
@@ -69,7 +100,13 @@ validators.checkVersionAndInstallComponent = async function(props, answers) {
     var res = await executeCommand(command, "version")
       .then(async () => {
         var res = await executeCommand(
-          "npm i " + answers.packageNameToInstallComponent + "@" + props,
+          "cd " +
+            projectDirectory +
+            " && npm i " +
+            answers.packageNameToInstallComponent +
+            "@" +
+            props +
+            " --save-exact",
           "checkVersionAndInstallComponent"
         )
           .then(() => true)
@@ -103,8 +140,8 @@ validators.checkVersionAndInstallComponent = async function(props, answers) {
 
 validators.directoryName = async props => {
   var res;
-  if (props.trim() === "o") {
-    res = await executeCommand(`rm -rf ${buildDirectory}/*`)
+  if (props.trim() === "o" || props.trim() === "O") {
+    res = await executeCommand(`rm -rf ${projectDirectory}/${buildDirectory}/*`)
       .then(() => true)
       .catch(err => {
         return chalk.red(
@@ -118,13 +155,13 @@ validators.directoryName = async props => {
 
   if (props) {
     buildDirectory = props;
-    res = await executeCommand("mkdir " + props)
+    res = await executeCommand("mkdir " + projectDirectory + "/" + props)
       .then(() => true)
       .catch(err => {
         return chalk.red(
           "Uh oh! There already exists a directory with the same name. Enter a new name again or enter " +
             chalk.cyan("o") +
-            " if you want to overwrite the contents of this directory and then import the build file. please see the log below for more details.\n" +
+            " if you want to overwrite the contents of this directory and then import the build file. Please see the log below for more details.\n" +
             chalk.yellow(err)
         );
       });
@@ -137,7 +174,7 @@ validators.directoryName = async props => {
 validators.importBuildFileFromNPM = async function(props) {
   if (props) {
     var res = await executeCommand(
-      "cd " + buildDirectory + " && curl -O " + props,
+      "cd " + projectDirectory + "/" + buildDirectory + " && curl -O " + props,
       "importBuildFileFromNPM"
     )
       .then(() => {
@@ -169,7 +206,7 @@ validators.importBuildFileFromNPM = async function(props) {
 validators.importBuildFileLocally = async props => {
   if (props) {
     var res = await executeCommand(
-      "cp " + props + " " + buildDirectory,
+      "cp " + props + " " + projectDirectory + "/" + buildDirectory,
       "importBuildFileLocally"
     )
       .then(() => {
@@ -254,6 +291,9 @@ function executeCommand(command, type) {
           spinner.stop();
           reject(err);
         }
+      } else if (type === "checkDirExistence") {
+        spinner.stop();
+        resolve(true);
       } else if (stdout) {
         process.stdout.write(`\n ${stdout} \n`); // If there is an output display it
         spinner.stop();

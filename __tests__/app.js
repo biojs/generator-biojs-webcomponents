@@ -13,7 +13,6 @@ describe("generator-biojs-webcomponents:app - Make a new Web Component", () => {
       toolNameHuman: "Biojs test component"
     });
   });
-
   it("creates expected files", () => {
     assert.file([
       "examples/index.html",
@@ -79,10 +78,15 @@ describe("generator-biojs-webcomponents:app - Make a new Web Component", () => {
 });
 
 describe("generator-biojs-webcomponents:app - Upgrade an existing component by importing build file locally", () => {
+  it("runs the generator in the directory passed in arguments", async () => {
+    await validators.storeArg("test-component").then(() => {
+      assert.file("test-component");
+    });
+  });
   it("makes a new directory named - component-dist", async () => {
     await validators
       .directoryName("component-dist")
-      .then(() => assert.file(["component-dist"]));
+      .then(() => assert.file(["test-component/component-dist"]));
   });
   it("imports the build file", async () => {
     await validators
@@ -90,7 +94,7 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
         path.join(__dirname, "../generators/app/validator.js")
       )
       .then(() => {
-        assert.file(["component-dist/validator.js"]);
+        assert.file(["test-component/component-dist/validator.js"]);
       });
   });
   it("throws an error if user enters an empty string as path of build file", async () => {

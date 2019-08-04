@@ -5,6 +5,19 @@ const yosay = require("yosay");
 const validators = require("./validator");
 
 module.exports = class extends Generator {
+  // Note: arguments and options should be defined in the constructor.
+  constructor(args, opts) {
+    super(args, opts);
+    this.argument("projectDirectory", {
+      type: String,
+      required: false,
+      default: "web-component",
+      desc: `${chalk.blue(
+        "path of the project directory, if you enter the path of a directory which does not exist, the generator will make one for you, otherwise it will use the existing one."
+      )} Default directory: ${chalk.cyan("web-component")}`
+    });
+  }
+
   initializing() {
     this.composeWith(require.resolve("generator-license"), {
       defaultLicense: "MIT" // (optional) Select a default license
@@ -23,6 +36,12 @@ module.exports = class extends Generator {
 
     // First prompt
     const initialPrompts = [
+      {
+        type: "input",
+        name: "start",
+        message: "Press Enter key to get going!",
+        validate: () => validators.storeArg(this.options.projectDirectory)
+      },
       {
         type: "list",
         name: "upgradeOrMake",
@@ -43,7 +62,7 @@ module.exports = class extends Generator {
         message:
           "I need the build file (generally index.js, main.js or componentName.js) for this, import it using one of the options -",
         choices: [
-          "Install component from npm package (Recommended - fastest way)",
+          "Install component from npm package. (Recommended - fastest way)",
           "Tell us the path of the build file on your local machine and I will import it in the project.",
           "Tell us the npm package name, version, build file URL and I will download the build file."
         ],
@@ -68,7 +87,7 @@ module.exports = class extends Generator {
         name: "changeImportSourceFromNpmPackage",
         message: "What do you want to do?",
         choices: [
-          "Enter package name again to install component from npm package.",
+          "Enter package name again to install component from npm package. (Recommended - fastest way)",
           "Import the file locally from your computer.",
           "Enter package name, version, build file URL to download the build file."
         ],
@@ -115,7 +134,7 @@ module.exports = class extends Generator {
         name: "changeImportSourceFromNpmBuildFile",
         message: "What do you want to do?",
         choices: [
-          "Enter package name again to install component from npm package.",
+          "Enter package name again to install component from npm package. (Recommended - fastest way)",
           "Import the file locally from your computer.",
           "Enter package name, version, build file URL to download the build file."
         ],
@@ -148,6 +167,13 @@ module.exports = class extends Generator {
         message:
           "The build file will be imported in a separate directory in the project's root. Enter the name of this directory or press Enter if you like to go with default.",
         validate: validators.directoryName,
+        when: function(responses) {
+          if (responses.confirmPackageName) {
+            return true; // Show this prompt if user says that package description is correct
+          }
+
+          return false; // Don't show this prompt if user says that package description is incorrect
+        },
         default: "component-dist"
       },
       {
@@ -181,9 +207,8 @@ module.exports = class extends Generator {
       {
         type: "input",
         name: "directoryName",
-        message: `The build file will be imported in a separate directory in the project's root. Enter the name of this directory or press Enter if you like to go with default ${chalk.cyan(
-          "component-dist"
-        )}.`,
+        message:
+          "The build file will be imported in a separate directory in the project's root. Enter the name of this directory or press Enter if you like to go with default.",
         validate: validators.directoryName,
         default: "component-dist"
       },
@@ -236,7 +261,6 @@ module.exports = class extends Generator {
               ); // Call the function recursively
             }
 
-            // If user chooses to install component from npm after starting over
             return this.prompt(commonPrompts).then(props => {
               this.props = props;
               this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
@@ -268,30 +292,20 @@ module.exports = class extends Generator {
               ); // Call the function recursively
             }
 
-            // If user chooses to import from npm after starting over
             return this.prompt(commonPrompts).then(props => {
               this.props = props;
               this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
             });
           });
         }
-
-        // If user chooses to import file locally when package description is incorrect
-        return this.prompt(localPrompts).then(() => {
-          return this.prompt(commonPrompts).then(props => {
-            this.props = props;
-            this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
-          });
-        });
       }
 
       // Normal (initial) prompt execution
       return this.prompt(initialPrompts).then(props => {
-        // To access props later use this.props.someAnswer;
         // If user chooses to upgrade an existing component
-        if (props.upgradeOrMake === initialPrompts[0].choices[0]) {
+        if (props.upgradeOrMake === initialPrompts[1].choices[0]) {
           return this.prompt(upgradeComponentPrompts).then(props => {
-            // If user chooses to import file locally from computer
+            // If user chooses to install component as npm package
             if (props.importFrom === upgradeComponentPrompts[0].choices[0]) {
               return this.prompt(installNpmPackagePrompts).then(props => {
                 // If user chooses to go back and choose source of importing file again
@@ -301,7 +315,6 @@ module.exports = class extends Generator {
                   ); // Call the function recursively
                 }
 
-                // If user chooses to install component from npm initially
                 return this.prompt(commonPrompts).then(props => {
                   this.props = props;
                   this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
@@ -309,6 +322,7 @@ module.exports = class extends Generator {
               });
             }
 
+            // If user chooses to import build file locally
             if (props.importFrom === upgradeComponentPrompts[0].choices[1]) {
               return this.prompt(localPrompts).then(() => {
                 return this.prompt(commonPrompts).then(props => {
@@ -318,17 +332,16 @@ module.exports = class extends Generator {
               });
             }
 
+            // If user chooses to import build file from npm package
             if (props.importFrom === upgradeComponentPrompts[0].choices[2]) {
-              // If user chooses to import file from npm
               return this.prompt(npmPrompts).then(props => {
-                // If user chooses to go back and choose source of importing file again
+                // If user chooses to go back and choose source of importing again
                 if (props.changeImportSourceFromNpmBuildFile) {
                   return recursivePromptExecution(
                     props.changeImportSourceFromNpmBuildFile
                   ); // Call the function recursively
                 }
 
-                // If user chooses to import from npm initially
                 return this.prompt(commonPrompts).then(props => {
                   this.props = props;
                   this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
@@ -339,7 +352,7 @@ module.exports = class extends Generator {
         }
 
         // If user chooses to make a new component
-        if (props.upgradeOrMake === initialPrompts[0].choices[1]) {
+        if (props.upgradeOrMake === initialPrompts[1].choices[1]) {
           return this.prompt(commonPrompts).then(props => {
             this.props = props;
             this.props.toolNameCamel = toCamelCase(props.toolNameHuman);
@@ -352,6 +365,7 @@ module.exports = class extends Generator {
   }
 
   writing() {
+    this.destinationRoot(`./${this.options.projectDirectory}`);
     this.fs.copyTpl(
       this.templatePath("examples/index.html"),
       this.destinationPath("examples/index.html"),
@@ -436,6 +450,7 @@ module.exports = class extends Generator {
       this.templatePath("img/favicon.png"),
       this.destinationPath("img/favicon.png")
     );
+    this.destinationRoot("./");
   }
 
   install() {
