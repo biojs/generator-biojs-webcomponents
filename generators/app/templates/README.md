@@ -28,7 +28,7 @@ Some notes on usage:
 
 - Download the bundle.js file from dist folder and link it to your index.html file.
 - You may use the style.css in dist folder file for styling the component.
-- Use the <<%= toolNameComputer %> element like any other HTML element wherever you want.
+- Use the <<%= toolNameComputer %>> element like any other HTML element wherever you want.
 - `attribute` must be a valid identifier with a valid `value`.
 
 

@@ -18,12 +18,43 @@
     align-items: center;
     justify-content: center;
   }
+  #nav {
+    display: flex;
+    width: 100%;
+    height: 10vh;
+    justify-content: space-around;
+    align-items: center;
+    font-size: 20px;
+  }
+  #biojs_link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #nav > a {
+    width: 400px;
+    text-align: center;
+  }
+  #icon {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+  }
+  a {
+    color: #007e3a;
+    font-size: inherit;
+    text-decoration: none;
+  }
   </style>
 </head>
 
 <body class="demo">
-
-  <h1><%= title %> demo</h1>
+  <div id="nav">
+    <a href="https://biojs.net" target="_blank" id="biojs_link"><img src="../img/favicon.png" id="icon">BioJS</a>
+    <a href="../index.html"><%= title %></a>
+    <a href="./index.html">Visualize <%= title %></a>
+  </div>
+  <h1><%= title %> Visualization</h1>
 
   <!-- the geneId param below can be removed if needed - it's just an example of
        how to pass values to the component's JS behaviours. -->

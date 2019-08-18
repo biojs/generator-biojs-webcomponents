@@ -35,7 +35,7 @@ describe("generator-biojs-webcomponents:app - Make a new Web Component", () => {
         "examples/index.html",
         '<test-component-tool geneId="BRCA1" class="BiojsTestComponent"></test-component-tool>'
       ],
-      ["examples/index.html", "<h1>Biojs test component demo</h1>"],
+      ["examples/index.html", "<h1>Biojs test component Visualization</h1>"],
       ["src/index.js", "define('test-component-tool', BiojsTestComponent);"],
       ["src/style.less", ".BiojsTestComponent"]
     ]);
@@ -54,7 +54,7 @@ describe("generator-biojs-webcomponents:app - Make a new Web Component", () => {
             "examples/index.html",
             '<biojs-webcomponent-tool-name-here geneId="BRCA1" class="BioJSComponent"></biojs-webcomponent-tool-name-here>'
           ],
-          ["examples/index.html", "<h1>BioJS component demo</h1>"],
+          ["examples/index.html", "<h1>BioJS component Visualization</h1>"],
           [
             "src/index.js",
             "define('biojs-webcomponent-tool-name-here', BioJSComponent);"
