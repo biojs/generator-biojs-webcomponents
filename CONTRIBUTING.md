@@ -113,6 +113,7 @@ Contains all the code for generator.
 
 3. app/validator.js - Contains the validator functions for the prompts which checks user inputs and also performs other functions like copying the build file, installing the component as npm package, downloading the build file from npm package and validating npm package's version.
 
+To understand the code in `2. app/index.js` and `3. app/validator.js`, read the [developer docs](DEV_DOCS.md).
 All the other files are self explanatory.
 
 ### To-do / roadmap. 
