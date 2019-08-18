@@ -34,7 +34,7 @@ module.exports = class extends Generator {
       )
     );
 
-    // First prompt
+    //  Primary prompts
     const initialPrompts = [
       {
         type: "input",
