@@ -21,30 +21,30 @@ Step 1: Install [Yeoman](http://yeoman.io).
 npm install -g yo
 ```
 
-Step 2a: Install [generator-biojs-webcomponents](https://www.npmjs.com/package/@biojs/generator-biojs-webcomponents).
+Step 2a: Install [generator-biojs-webcomponents](https://www.npmjs.com/package/generator-biojs-webcomponents).
 
 ```
-npm install -g yo @biojs/biojs-webcomponents
+npm install -g yo generator-biojs-webcomponents
 ```
 
 Step 2b: Generate your new project.
 
 ```
-i) yo @biojs/biojs-webcomponents 
+i) yo biojs-webcomponents 
 ```
 This will make a **new directory** named `web-component` in the **current directory**. The `web-component` directory will be your **project directory**. If there is already a directory with the name `web-component`, the generator will not make a new one, rather **the existing one will be your project directory**.
 
    OR
 
 ```
-ii) yo @biojs/biojs-webcomponents .
+ii) yo biojs-webcomponents .
 ```
 This will run the generator in the **current directory**.
 
    OR 
         
 ```
-iii) yo @biojs/biojs-webcomponents /anyPath/yourNewProjectDir
+iii) yo biojs-webcomponents /anyPath/yourNewProjectDir
 ```
 This will run the generator in a new directory named `yourNewProjectDir` (you can choose any other name), the new directory will be created at the **path you specified**. If there is already a directory with the same name as you provided, the generator will not make a new one, rather **the existing one will be your project directory**.
 
@@ -106,7 +106,7 @@ If you face any issue, feel free to contact us at [Gitter](https://gitter.im/bio
 
 ## III. Workflow and Questions
 
-After running ```yo @biojs/biojs-webcomponents``` in your terminal, you will be asked -
+After running ```yo biojs-webcomponents``` in your terminal, you will be asked -
 
 ```
 ? Press Enter key to get going!

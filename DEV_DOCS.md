@@ -11,7 +11,7 @@ this.argument("projectDirectory", {
     });
 ```
 
-This defines the project directory argument which is entered when the generator is run. The string value stored in the `desc` above is shown when user runs the command `yo @biojs/biojs-webcomponents --help`.  Each argument should have a desc field so that yeoman can provide help when user asks.
+This defines the project directory argument which is entered when the generator is run. The string value stored in the `desc` above is shown when user runs the command `yo biojs-webcomponents --help`.  Each argument should have a desc field so that yeoman can provide help when user asks.
 
 The methods listed after the `constructor` are default methods provided by yeoman which are executed in the order they are written which is - 
 ### 1. initializing()
@@ -104,7 +104,7 @@ async function(props) {
             `Oops! We encountered an error. Please see below for the more details - \n${chalk.yellow(
               err
             )}\n.Try this - cd into that directory and run ${chalk.cyan(
-              "`yo @biojs/biojs-webcomponents .`"
+              "`yo biojs-webcomponents .`"
             )}.`
           );
         });

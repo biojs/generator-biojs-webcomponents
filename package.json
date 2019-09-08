@@ -1,6 +1,6 @@
 {
   "name": "generator-biojs-webcomponents",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "description": "Generate the scaffold for a BioJS component automatically so you don't have to do it yourself",
   "homepage": "http://biojs.net",
   "author": {
