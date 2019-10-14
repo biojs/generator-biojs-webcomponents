@@ -158,8 +158,7 @@ describe("generator-biojs-webcomponents:app - Upgrade an existing component by i
 });
 
 describe("generator-biojs-webcomponents:app - Upgrade an existing component by installing component from npm package", () => {
-  it("installs the latest component from its npm package if user enters a valid version", async () => {
-    jest.setTimeout(10000); // Increases timeout for this test
+  it("throws an error if version entered does not exist", async () => {
     let res = await validators.checkVersionAndInstallComponent("latest", {
       packageNameToInstallComponent: "is-odd"
     });

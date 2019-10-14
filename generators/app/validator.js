@@ -100,51 +100,13 @@ validators.version = async function(props, answers) {
 validators.checkVersionAndInstallComponent = async function(props, answers) {
   if (props) {
     if (props === "latest") {
-      let res = await executeCommand(
-        "cd " +
-          projectDirectory +
-          " && npm i " +
-          answers.packageNameToInstallComponent +
-          "@" +
-          props +
-          " --save-exact",
-        "checkVersionAndInstallComponent"
-      )
-        .then(() => true)
-        .catch(err => {
-          return chalk.red(
-            `Oops! We encountered an error. Please see below for the more details - \n${chalk.yellow(
-              err
-            )}`
-          );
-        });
-      return res;
+      return true;
     }
 
     let command =
       "npm view " + answers.packageNameToInstallComponent + "@" + props;
     let res = await executeCommand(command, "version")
-      .then(async () => {
-        let res = await executeCommand(
-          "cd " +
-            projectDirectory +
-            " && npm i " +
-            answers.packageNameToInstallComponent +
-            "@" +
-            props +
-            " --save-exact",
-          "checkVersionAndInstallComponent"
-        )
-          .then(() => true)
-          .catch(err => {
-            return chalk.red(
-              `Oops! We encountered an error. Please see below for the more details - \n${chalk.yellow(
-                err
-              )}`
-            );
-          });
-        return res;
-      })
+      .then(() => true)
       .catch(() =>
         chalk.red(
           "Sorry, the version - " +
@@ -305,10 +267,7 @@ function executeCommand(command, type) {
         // The command couldn't be executed
         spinner.stop();
         reject(err);
-      } else if (
-        type === "version" ||
-        type === "checkVersionAndInstallComponent"
-      ) {
+      } else if (type === "version") {
         // Command successfully executed
         if (stdout) {
           spinner.stop();
