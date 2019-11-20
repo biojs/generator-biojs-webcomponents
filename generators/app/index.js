@@ -321,6 +321,7 @@ module.exports = class extends Generator {
             if (props.importFrom === upgradeComponentPrompts[0].choices[0]) {
               return this.prompt(installNpmPackagePrompts).then(props => {
                 // If user chooses to go back and choose source of importing file again
+                this.npmProps = props;
                 if (props.changeImportSourceFromNpmPackage) {
                   return recursivePromptExecution(
                     props.changeImportSourceFromNpmPackage
@@ -467,6 +468,21 @@ module.exports = class extends Generator {
       this.destinationPath("img/favicon.png")
     );
     this.destinationRoot("./");
+  }
+
+  installingNPMPackage() {
+    if (
+      this.npmProps &&
+      this.npmProps.packageNameToInstallComponent &&
+      this.npmProps.checkVersionAndInstallComponent
+    ) {
+      this.npmInstall(
+        this.npmProps.packageNameToInstallComponent +
+          "@" +
+          this.npmProps.checkVersionAndInstallComponent,
+        { "save-dev": true }
+      );
+    }
   }
 
   install() {
