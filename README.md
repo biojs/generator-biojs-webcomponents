@@ -3,7 +3,7 @@ Generates the scaffold for a BioJS component automatically so you don't have to 
 
 This guide is for using the generator to make new components and upgrade existing ones. See [Section I](#i-getting-started) for getting started with the generator and installing it and [Section II](#ii-description-of-your-projects-folder-structure) for description of your project's directory after running the generator. Once you install the generator and run it, you will be asked some questions, you can read more about them in [Section III](#iii-workflow-and-questions).
 
-For contributing to this project, see the [Contribution guide](CONTRIBUTING.md).
+For contributing to this project, see the [Contribution guide](CONTRIBUTING.md). Please read the [code of conduct](CODE_OF_CONDUCT.md) before contributing.
 
 ### What this tool currently does
 
